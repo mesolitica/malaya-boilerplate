@@ -141,26 +141,9 @@ def print_cache(location = None):
         print(path.displayable())
 
 
-def delete_all_cache():
-    """
-    Remove cached data, this will delete entire cache folder.
-    """
-    _delete_macos()
-    home, _ = _get_home()
-    try:
-        _delete_folder(home)
-        with open(version_path, 'w') as fopen:
-            fopen.write(version)
-        return True
-    except:
-        raise Exception(
-            f'failed to clear cached models. Please make sure {home} is able to overwrite from Malaya'
-        )
-
-
 def delete_cache(location):
     """
-    Remove selected cached data, please run malaya.print_cache() to get path.
+    Remove selected cached data, please run print_cache() to get path.
 
     Parameters
     ----------
@@ -177,14 +160,31 @@ def delete_cache(location):
     location = os.path.join(home, location)
     if not os.path.exists(location):
         raise Exception(
-            'folder not exist, please check path from `malaya.print_cache()`'
+            f'folder not exist, please check path from `{__package__}.utils.print_cache()`'
         )
     if not os.path.isdir(location):
         raise Exception(
-            'Please use parent directory, please check path from `malaya.print_cache()`'
+            f'Please use parent directory, please check path from `{__package__}.utils.print_cache()`'
         )
     _delete_folder(location)
     return True
+
+
+def delete_all_cache():
+    """
+    Remove cached data, this will delete entire cache folder.
+    """
+    _delete_macos()
+    home, _ = _get_home()
+    try:
+        _delete_folder(home)
+        with open(version_path, 'w') as fopen:
+            fopen.write(version)
+        return True
+    except:
+        raise Exception(
+            f'failed to clear cached models. Please make sure {home} is able to overwrite from Malaya'
+        )
 
 
 def close_session(model):
