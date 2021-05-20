@@ -52,6 +52,19 @@ def nodes_session(graph, inputs, outputs, extra = None, attention = None):
 
 
 def generate_session(graph, **kwargs):
+    """
+    Load session for a Tensorflow graph.
+
+    Parameters
+    ----------
+    graph: tensorflow.Graph
+    gpu_limit: float, optional (default = 0.999)
+        limit percentage to use a gpu memory.
+
+    Returns
+    -------
+    result : tensorflow.Session
+    """
     config = tf.compat.v1.ConfigProto()
     check_gpu = kwargs.get('check_gpu', True)
     if gpu_available() or not check_gpu:
@@ -175,6 +188,26 @@ def convert_graph_precision(source_graph_def, target_type = 'FP16'):
 
 
 def load_graph(frozen_graph_filename, **kwargs):
+    """
+    Load frozen graph from a checkpoint.
+
+    Parameters
+    ----------
+    frozen_graph_filename: str
+    use_tensorrt: bool, optional (default=False)
+        Use TensorRT.
+    tensorrt_precision_mode: str, optional (default='FP32')
+        TensorRT precision mode, only supported one of ['FP32', 'FP16', 'INT8'].
+        if device is not a gpu, `load_graph` will throw an error.
+    precision_mode: str, optional (default='FP32')
+        change precision frozen graph, only supported one of ['BFLOAT16', 'FP16', 'FP32', 'FP64'].
+    device: str, optional (default='CPU:0')
+        device to use for specific model, read more at https://www.tensorflow.org/guide/gpu
+
+    Returns
+    -------
+    result : tensorflow.Graph
+    """
 
     use_tensorrt = kwargs.get('use_tensorrt', False)
     tensorrt_precision_mode = kwargs.get(
