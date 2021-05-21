@@ -2,9 +2,10 @@ from shutil import rmtree
 from pathlib import Path
 import os
 import logging
-from . import __package__
+from . import __package__, __package_version__
 
 IS_GPU = None
+DEVICES = None
 
 
 def _delete_folder(folder):
@@ -42,9 +43,8 @@ def get_home():
 
     _delete_macos()
     if not os.path.isfile(version_path):
-        _delete_folder(home)
         with open(version_path, 'w') as fopen:
-            fopen.write(version)
+            fopen.write(__package_version__)
     else:
         with open(version_path, 'r') as fopen:
             cached_version = fopen.read()
@@ -52,11 +52,10 @@ def get_home():
             if float(cached_version) < 1:
                 _delete_folder(home)
                 with open(version_path, 'w') as fopen:
-                    fopen.write(version)
+                    fopen.write(__package_version__)
         except:
-            _delete_folder(home)
             with open(version_path, 'w') as fopen:
-                fopen.write(version)
+                fopen.write(__package_version__)
 
     return home, version_path
 
@@ -79,25 +78,42 @@ def describe_availability(dict, transpose = True, text = ''):
         return dict
 
 
-def available_gpu():
+def available_device():
     """
-    Get list of GPUs from `nvidia-smi`.
+    Get list of devices and memory limit from `tensorflow.python.client.device_lib.list_local_devices()`.
 
     Returns
     -------
     result : List[str]
     """
-    percent = []
-    try:
-        ns = os.popen('nvidia-smi')
-        lines_ns = ns.readlines()
-        for line in lines_ns:
-            if line.find('%') != -1:
-                percent.append(int(line.split('%')[-2][-3:]))
-        percent = [f'/device:GPU:{i}' for i in range(len(percent))]
-    except:
-        pass
-    return percent
+    global DEVICES
+
+    if DEVICES is None:
+        from tensorflow.python.client import device_lib
+
+        DEVICES = device_lib.list_local_devices()
+        DEVICES = [
+            (
+                i.name.replace('/device:', ''),
+                f'{round(i.memory_limit / 1e9, 3)} GB',
+            )
+            for i in DEVICES
+        ]
+
+    return DEVICES
+
+
+def available_gpu():
+    """
+    Get list of GPUs and memory limit from `tensorflow.python.client.device_lib.list_local_devices()`.
+
+    Returns
+    -------
+    result : List[str]
+    """
+
+    devices = available_device()
+    return [d for d in devices if 'GPU' in d[0] and 'XLA' not in d[0]]
 
 
 def gpu_available():
@@ -121,6 +137,17 @@ def gpu_available():
             gpus = available_gpu()
             IS_GPU = len(gpus) > 0
     return IS_GPU
+
+
+def is_gpu_version():
+    """
+    Check Malaya is GPU version.
+
+    Returns
+    -------
+    result : bool
+    """
+    return gpu_available()
 
 
 def print_cache(location = None):

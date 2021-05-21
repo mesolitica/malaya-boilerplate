@@ -28,6 +28,24 @@ def check_files_local(file):
     return True
 
 
+def download_file_cloud(url, filename):
+    if 'http' not in url:
+        url = __url__ + url
+    r = requests.get(url, stream = True)
+    total_size = int(r.headers['content-length'])
+    version = int(r.headers.get('X-Bz-Upload-Timestamp', 0))
+    os.makedirs(os.path.dirname(filename), exist_ok = True)
+    with open(filename, 'wb') as f:
+        for data in tqdm(
+            iterable = r.iter_content(chunk_size = 1_048_576),
+            total = total_size / 1_048_576,
+            unit = 'MB',
+            unit_scale = True,
+        ):
+            f.write(data)
+    return version
+
+
 def download_from_dict(file, s3_file, validate = True, quantized = False):
     if quantized:
         if 'quantized' not in file:

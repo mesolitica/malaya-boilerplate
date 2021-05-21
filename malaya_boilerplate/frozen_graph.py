@@ -94,10 +94,9 @@ def get_device(**kwargs):
     if no < 0:
         raise ValueError('`no` from `device:{no}` must >= 0')
     device_type = splitted[0].upper()
-
-    if device_type not in ['XLA_CPU', 'XLA_CPU_JIT', 'CPU', 'GPU']:
+    if device_type not in ['XLA_CPU', 'XLA_CPU_JIT', 'CPU', 'GPU', 'XLA_GPU']:
         raise ValueError(
-            "`device` from `device:{no}` must one of ['XLA_CPU', 'XLA_CPU_JIT', 'CPU', 'GPU']"
+            "`device` from `device:{no}` must one of ['XLA_CPU', 'XLA_CPU_JIT', 'CPU', 'GPU', 'XLA_GPU']"
         )
     check_gpu = kwargs.get('check_gpu', True)
     if gpu_available() or not check_gpu:
