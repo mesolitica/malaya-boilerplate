@@ -62,12 +62,25 @@ def generate_session(graph, **kwargs):
 
 ### malaya_boilerplate.utils
 
+#### malaya_boilerplate.utils.available_device
+
+```python
+def available_device(refresh = False):
+    """
+    Get list of devices and memory limit from `tensorflow.python.client.device_lib.list_local_devices()`.
+
+    Returns
+    -------
+    result : List[str]
+    """
+```
+
 #### malaya_boilerplate.utils.available_gpu
 
 ```python
-def available_gpu():
+def available_gpu(refresh = False):
     """
-    Get list of GPUs from `nvidia-smi`.
+    Get list of GPUs and memory limit from `tensorflow.python.client.device_lib.list_local_devices()`.
 
     Returns
     -------
@@ -78,7 +91,7 @@ def available_gpu():
 #### malaya_boilerplate.utils.gpu_available
 
 ```python
-def gpu_available():
+def gpu_available(refresh = False):
     """
     Check Malaya is GPU version.
 
