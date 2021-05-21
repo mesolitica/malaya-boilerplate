@@ -1,5 +1,5 @@
 import setuptools
-
+import malaya_boilerplate
 
 __packagename__ = 'malaya-boilerplate'
 
@@ -10,7 +10,7 @@ with open('requirements.txt') as fopen:
 setuptools.setup(
     name = __packagename__,
     packages = setuptools.find_packages(),
-    version = '0.0.2',
+    version = malaya_boilerplate.__version__,
     python_requires = '>=3.6.*',
     description = 'Tensorflow freeze graph optimization and boilerplates to share among Malaya projects.',
     author = 'huseinzol05',

@@ -78,7 +78,7 @@ def describe_availability(dict, transpose = True, text = ''):
         return dict
 
 
-def available_device():
+def available_device(refresh = False):
     """
     Get list of devices and memory limit from `tensorflow.python.client.device_lib.list_local_devices()`.
 
@@ -88,7 +88,7 @@ def available_device():
     """
     global DEVICES
 
-    if DEVICES is None:
+    if DEVICES is None and not refresh:
         from tensorflow.python.client import device_lib
 
         DEVICES = device_lib.list_local_devices()
@@ -103,7 +103,7 @@ def available_device():
     return DEVICES
 
 
-def available_gpu():
+def available_gpu(refresh = False):
     """
     Get list of GPUs and memory limit from `tensorflow.python.client.device_lib.list_local_devices()`.
 
@@ -112,11 +112,11 @@ def available_gpu():
     result : List[str]
     """
 
-    devices = available_device()
+    devices = available_device(refresh = refresh)
     return [d for d in devices if 'GPU' in d[0] and 'XLA' not in d[0]]
 
 
-def gpu_available():
+def gpu_available(refresh = False):
     """
     Check Malaya is GPU version.
 
@@ -129,7 +129,7 @@ def gpu_available():
 
     global IS_GPU
 
-    if IS_GPU is None:
+    if IS_GPU is None and not refresh:
         IS_GPU = f'{__package__}-gpu' in [
             p.project_name for p in pkg_resources.working_set
         ]
