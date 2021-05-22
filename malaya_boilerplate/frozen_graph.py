@@ -100,6 +100,7 @@ def get_device(**kwargs):
             "`device` from `device:{no}` must one of ['XLA_CPU', 'XLA_CPU_JIT', 'CPU', 'GPU', 'XLA_GPU']"
         )
     auto_gpu = kwargs.get('auto_gpu', True)
+    check_gpu = kwargs.get('check_gpu', True)
     gpus = available_gpu()
 
     if auto_gpu and len(gpus) and 'GPU' not in device_type:
