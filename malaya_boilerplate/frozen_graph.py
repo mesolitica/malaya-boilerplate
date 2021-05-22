@@ -2,6 +2,7 @@ import os
 import logging
 import numpy as np
 import tensorflow as tf
+from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
 from .utils import gpu_available, available_gpu, _get_home
 
@@ -98,13 +99,23 @@ def get_device(**kwargs):
         raise ValueError(
             "`device` from `device:{no}` must one of ['XLA_CPU', 'XLA_CPU_JIT', 'CPU', 'GPU', 'XLA_GPU']"
         )
+    auto_gpu = kwargs.get('auto_gpu', True)
     check_gpu = kwargs.get('check_gpu', True)
+    gpus = available_gpu()
 
-    if not gpu_available() and 'GPU' in device_type and check_gpu:
+    if auto_gpu and len(gpus):
+        gpu = sorted(gpus, key = itemgetter(1), reverse = True)[0]
+        device = gpu[0]
+
+    if (
+        not gpu_available()
+        and 'GPU' in device_type
+        and (check_gpu or len(gpus))
+    ):
         raise ValueError(f'gpu is not available but device is {device}')
 
     if gpu_available() and 'GPU' in device_type and check_gpu:
-        gpus = available_gpu()
+
         if not 0 <= no < len(gpus):
             raise ValueError(f'gpu must 0 <= gpu < {len(gpus)}')
 
