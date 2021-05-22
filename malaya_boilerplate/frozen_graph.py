@@ -100,24 +100,19 @@ def get_device(**kwargs):
             "`device` from `device:{no}` must one of ['XLA_CPU', 'XLA_CPU_JIT', 'CPU', 'GPU', 'XLA_GPU']"
         )
     auto_gpu = kwargs.get('auto_gpu', True)
-    check_gpu = kwargs.get('check_gpu', True)
     gpus = available_gpu()
 
-    if auto_gpu and len(gpus):
+    if auto_gpu and len(gpus) and 'GPU' not in device_type:
         gpu = sorted(gpus, key = itemgetter(1), reverse = True)[0]
         device = gpu[0]
 
-    if (
-        not gpu_available()
-        and 'GPU' in device_type
-        and (check_gpu or len(gpus))
-    ):
-        raise ValueError(f'gpu is not available but device is {device}')
+    if 'GPU' in device:
+        if not gpu_available() and (check_gpu or len(gpus)):
+            raise ValueError(f'gpu is not available but device is {device}')
 
-    if gpu_available() and 'GPU' in device_type and check_gpu:
-
-        if not 0 <= no < len(gpus):
-            raise ValueError(f'gpu must 0 <= gpu < {len(gpus)}')
+        if gpu_available() and check_gpu:
+            if not 0 <= no < len(gpus):
+                raise ValueError(f'gpu must 0 <= gpu < {len(gpus)}')
 
     return f'/device:{device}'
 
@@ -217,6 +212,8 @@ def load_graph(frozen_graph_filename, **kwargs):
         change precision frozen graph, only supported one of ['BFLOAT16', 'FP16', 'FP32', 'FP64'].
     device: str, optional (default='CPU:0')
         device to use for specific model, read more at https://www.tensorflow.org/guide/gpu
+    auto_gpu: bool, optional (default=True)
+        if installed gpu version, will automatically allocate a model to a gpu with the most empty memory.
 
     Returns
     -------

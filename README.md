@@ -34,6 +34,8 @@ def load_graph(frozen_graph_filename, **kwargs):
         change precision frozen graph, only supported one of ['BFLOAT16', 'FP16', 'FP32', 'FP64'].
     device: str, optional (default='CPU:0')
         device to use for specific model, read more at https://www.tensorflow.org/guide/gpu
+    auto_gpu: bool, optional (default=True)
+        if installed gpu version, will automatically allocate a model to a gpu with the most empty memory.
 
     Returns
     -------
