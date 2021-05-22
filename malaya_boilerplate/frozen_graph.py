@@ -301,6 +301,8 @@ def load_graph(frozen_graph_filename, **kwargs):
             f'Converting {path} to TensorRT with precision {tensorrt_precision_mode}.'
         )
         try:
+            from tensorflow.python.compiler.tensorrt import trt_convert as trt
+
             converter = trt.TrtGraphConverter(
                 input_graph_def = graph_def,
                 precision_mode = tensorrt_precision_mode,
