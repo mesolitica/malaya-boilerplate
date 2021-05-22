@@ -99,12 +99,14 @@ def get_device(**kwargs):
             "`device` from `device:{no}` must one of ['XLA_CPU', 'XLA_CPU_JIT', 'CPU', 'GPU', 'XLA_GPU']"
         )
     check_gpu = kwargs.get('check_gpu', True)
-    if gpu_available():
+
+    if not gpu_available() and 'GPU' in device_type and check_gpu:
+        raise ValueError(f'gpu is not available but device is {device}')
+
+    if gpu_available() and 'GPU' in device_type and check_gpu:
         gpus = available_gpu()
-        if not 0 <= no < len(gpus) and check_gpu:
+        if not 0 <= no < len(gpus):
             raise ValueError(f'gpu must 0 <= gpu < {len(gpus)}')
-        if 'GPU' in device_type and check_gpu:
-            raise ValueError(f'gpu is not available but device is {device}')
 
     return f'/device:{device}'
 
