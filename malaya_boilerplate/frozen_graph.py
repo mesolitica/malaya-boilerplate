@@ -5,6 +5,7 @@ import tensorflow as tf
 from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
 from .utils import gpu_available, available_gpu, _get_home
+from . import __package__
 
 __home__, _ = _get_home()
 
@@ -20,7 +21,7 @@ if check_tf_version() > 1:
 
         _beam_search_so = LazySO('custom_ops/seq2seq/_beam_search_ops.so')
         gather_tree = _beam_search_so.ops.addons_gather_tree
-    except:
+    except BaseException:
         import warnings
 
         warnings.warn(
@@ -31,7 +32,7 @@ if check_tf_version() > 1:
 else:
     try:
         from tensorflow.contrib.seq2seq.python.ops import beam_search_ops
-    except:
+    except BaseException:
         import warnings
 
         warnings.warn(
@@ -39,7 +40,7 @@ else:
         )
 
 
-def nodes_session(graph, inputs, outputs, extra = None, attention = None):
+def nodes_session(graph, inputs, outputs, extra=None, attention=None):
     input_nodes = {i: graph.get_tensor_by_name(f'import/{i}:0') for i in inputs}
     output_nodes = {
         o: graph.get_tensor_by_name(f'import/{o}:0') for o in outputs
@@ -72,7 +73,7 @@ def generate_session(graph, **kwargs):
         config.allow_soft_placement = True
         try:
             gpu_limit = float(kwargs.get('gpu_limit', 0.999))
-        except:
+        except BaseException:
             raise ValueError('gpu_limit must be a float')
         if not 0 < gpu_limit < 1:
             raise ValueError('gpu_limit must 0 < gpu_limit < 1')
@@ -80,7 +81,7 @@ def generate_session(graph, **kwargs):
         config.gpu_options.per_process_gpu_memory_fraction = gpu_limit
         config.gpu_options.allow_growth = True
 
-    sess = tf.compat.v1.Session(config = config, graph = graph)
+    sess = tf.compat.v1.Session(config=config, graph=graph)
     return sess
 
 
@@ -104,7 +105,7 @@ def get_device(**kwargs):
     gpus = available_gpu()
 
     if auto_gpu and len(gpus) and 'GPU' not in device_type:
-        gpu = sorted(gpus, key = itemgetter(1), reverse = True)[0]
+        gpu = sorted(gpus, key=itemgetter(1), reverse=True)[0]
         device = gpu[0]
 
     if 'GPU' in device:
@@ -118,10 +119,10 @@ def get_device(**kwargs):
     return f'/device:{device}'
 
 
-def convert_graph_precision(source_graph_def, target_type = 'FP16'):
-    def rewrite_batch_norm_node_v2(node, graph_def, target_type = 'FP16'):
+def convert_graph_precision(source_graph_def, target_type='FP16'):
+    def rewrite_batch_norm_node_v2(node, graph_def, target_type='FP16'):
         """
-        Rewrite FusedBatchNorm with FusedBatchNormV2 for reserve_space_1 and reserve_space_2 in FusedBatchNorm require float32 for 
+        Rewrite FusedBatchNorm with FusedBatchNormV2 for reserve_space_1 and reserve_space_2 in FusedBatchNorm require float32 for
         gradient calculation (See here: https://www.tensorflow.org/api_docs/cc/class/tensorflow/ops/fused-batch-norm)
         """
         if target_type == 'BFLOAT16':
@@ -137,7 +138,7 @@ def convert_graph_precision(source_graph_def, target_type = 'FP16'):
         new_node.name = node.name
         new_node.input.extend(node.input)
         new_node.attr['U'].CopyFrom(
-            attr_value_pb2.AttrValue(type = types_pb2.DT_FLOAT)
+            attr_value_pb2.AttrValue(type=types_pb2.DT_FLOAT)
         )
         for attr in list(node.attr.keys()):
             if attr == 'T':
@@ -156,7 +157,7 @@ def convert_graph_precision(source_graph_def, target_type = 'FP16'):
     for node in source_graph_def.node:
         if node.op == 'FusedBatchNorm':
             rewrite_batch_norm_node_v2(
-                node, target_graph_def, target_type = target_type
+                node, target_graph_def, target_type=target_type
             )
             continue
         if ('BatchNorm' in node.name) or ('batch_normalization' in node.name):
@@ -178,7 +179,7 @@ def convert_graph_precision(source_graph_def, target_type = 'FP16'):
                         float_val = tf.make_ndarray(node.attr[attr].tensor)
                         node.attr[attr].tensor.CopyFrom(
                             tf.compat.v1.make_tensor_proto(
-                                float_val, dtype = dtype
+                                float_val, dtype=dtype
                             )
                         )
                         continue
@@ -189,7 +190,7 @@ def convert_graph_precision(source_graph_def, target_type = 'FP16'):
                             tensor_weights, tensor_shape
                         )
                         tensor_proto = tf.compat.v1.make_tensor_proto(
-                            tensor_weights, dtype = dtype
+                            tensor_weights, dtype=dtype
                         )
                         node.attr[attr].tensor.CopyFrom(tensor_proto)
                         continue
@@ -259,7 +260,7 @@ def load_graph(frozen_graph_filename, **kwargs):
             graph_def.ParseFromString(f.read())
         except Exception as e:
             raise Exception(
-                f"{e}, file corrupted due to some reasons, please run `malaya.clear_cache('{path}')` and try again"
+                f"{e}, file corrupted due to some reasons, please run `{__package__}.utils.delete_cache('{path}')` and try again"
             )
 
     # https://github.com/onnx/tensorflow-onnx/issues/77#issuecomment-445066091
@@ -304,8 +305,8 @@ def load_graph(frozen_graph_filename, **kwargs):
             from tensorflow.python.compiler.tensorrt import trt_convert as trt
 
             converter = trt.TrtGraphConverter(
-                input_graph_def = graph_def,
-                precision_mode = tensorrt_precision_mode,
+                input_graph_def=graph_def,
+                precision_mode=tensorrt_precision_mode,
             )
             graph_def = converter.convert()
         except Exception as e:
@@ -318,9 +319,9 @@ def load_graph(frozen_graph_filename, **kwargs):
         try:
             if precision_mode == 'BFLOAT16':
                 # some weird error related to range bfloat16
-                r = tf.range(0, 10, dtype = tf.bfloat16)
+                r = tf.range(0, 10, dtype=tf.bfloat16)
             graph_def = convert_graph_precision(
-                graph_def, target_type = precision_mode
+                graph_def, target_type=precision_mode
             )
         except Exception as e:
             raise Exception(

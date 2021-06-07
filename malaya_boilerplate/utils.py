@@ -36,7 +36,7 @@ def get_home():
     try:
         if not os.path.exists(home):
             os.makedirs(home)
-    except:
+    except BaseException:
         raise Exception(
             f'Malaya cannot make directory for caching. Please check your {home}'
         )
@@ -53,16 +53,16 @@ def get_home():
                 _delete_folder(home)
                 with open(version_path, 'w') as fopen:
                     fopen.write(__package_version__)
-        except:
+        except BaseException:
             with open(version_path, 'w') as fopen:
                 fopen.write(__package_version__)
 
     return home, version_path
 
 
-def describe_availability(dict, transpose = True, text = ''):
+def describe_availability(dict, transpose=True, text=''):
     if len(text):
-        logging.basicConfig(level = logging.INFO)
+        logging.basicConfig(level=logging.INFO)
 
         logging.info(text)
     try:
@@ -74,11 +74,11 @@ def describe_availability(dict, transpose = True, text = ''):
             return df.T
         else:
             return df
-    except:
+    except BaseException:
         return dict
 
 
-def available_device(refresh = False):
+def available_device(refresh=False):
     """
     Get list of devices and memory limit from `tensorflow.python.client.device_lib.list_local_devices()`.
 
@@ -103,7 +103,7 @@ def available_device(refresh = False):
     return DEVICES
 
 
-def available_gpu(refresh = False):
+def available_gpu(refresh=False):
     """
     Get list of GPUs and memory limit from `tensorflow.python.client.device_lib.list_local_devices()`.
 
@@ -112,11 +112,11 @@ def available_gpu(refresh = False):
     result : List[str]
     """
 
-    devices = available_device(refresh = refresh)
+    devices = available_device(refresh=refresh)
     return [d for d in devices if 'GPU' in d[0] and 'XLA' not in d[0]]
 
 
-def gpu_available(refresh = False):
+def gpu_available(refresh=False):
     """
     Check Malaya is GPU version.
 
@@ -150,7 +150,7 @@ def is_gpu_version():
     return gpu_available()
 
 
-def print_cache(location = None):
+def print_cache(location=None):
     """
     Print cached data, this will print entire cache folder if let location = None.
 
@@ -208,7 +208,7 @@ def delete_all_cache():
         with open(version_path, 'w') as fopen:
             fopen.write(version)
         return True
-    except:
+    except BaseException:
         raise Exception(
             f'failed to clear cached models. Please make sure {home} is able to overwrite from Malaya'
         )
@@ -262,7 +262,7 @@ class DisplayablePath(object):
         return self.path.name
 
     @classmethod
-    def make_tree(cls, root, parent = None, is_last = False, criteria = None):
+    def make_tree(cls, root, parent=None, is_last=False, criteria=None):
         root = Path(str(root))
         criteria = criteria or cls._default_criteria
         displayable_root = cls(root, parent, is_last)
@@ -270,7 +270,7 @@ class DisplayablePath(object):
 
         children = sorted(
             list(path for path in root.iterdir() if criteria(path)),
-            key = lambda s: str(s).lower(),
+            key=lambda s: str(s).lower(),
         )
         count = 1
         for path in children:
@@ -278,9 +278,9 @@ class DisplayablePath(object):
             if path.is_dir():
                 yield from cls.make_tree(
                     path,
-                    parent = displayable_root,
-                    is_last = is_last,
-                    criteria = criteria,
+                    parent=displayable_root,
+                    is_last=is_last,
+                    criteria=criteria,
                 )
             else:
                 yield cls(path, displayable_root, is_last)

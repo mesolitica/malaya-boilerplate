@@ -31,22 +31,22 @@ def check_files_local(file):
 def download_file_cloud(url, filename):
     if 'http' not in url:
         url = __url__ + url
-    r = requests.get(url, stream = True)
+    r = requests.get(url, stream=True)
     total_size = int(r.headers['content-length'])
     version = int(r.headers.get('X-Bz-Upload-Timestamp', 0))
-    os.makedirs(os.path.dirname(filename), exist_ok = True)
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, 'wb') as f:
         for data in tqdm(
-            iterable = r.iter_content(chunk_size = 1_048_576),
-            total = total_size / 1_048_576,
-            unit = 'MB',
-            unit_scale = True,
+            iterable=r.iter_content(chunk_size=1_048_576),
+            total=total_size / 1_048_576,
+            unit='MB',
+            unit_scale=True,
         ):
             f.write(data)
     return version
 
 
-def download_from_dict(file, s3_file, validate = True, quantized = False):
+def download_from_dict(file, s3_file, validate=True, quantized=False):
     if quantized:
         if 'quantized' not in file:
             f = file.replace(__home__, '').split('/')
@@ -100,7 +100,7 @@ def download_from_dict(file, s3_file, validate = True, quantized = False):
 
 
 def download_from_string(
-    path, module, keys, validate = True, quantized = False
+    path, module, keys, validate=True, quantized=False
 ):
     model = path
     keys = keys.copy()
@@ -138,7 +138,7 @@ def download_from_string(
         )
         if os.path.isfile(version):
             with open(version) as fopen:
-                if not latest in fopen.read():
+                if latest not in fopen.read():
                     p = os.path.dirname(version)
                     print(f'Found old version in {p}, deleting..')
                     _delete_folder(p)
@@ -177,26 +177,26 @@ def download_from_string(
 
 def check_file(
     file,
-    s3_file = None,
-    module = None,
-    keys = None,
-    validate = True,
-    quantized = False,
+    s3_file=None,
+    module=None,
+    keys=None,
+    validate=True,
+    quantized=False,
     **kwargs,
 ):
     if isinstance(file, dict) and isinstance(s3_file, dict):
         download_from_dict(
-            file = file,
-            s3_file = s3_file,
-            validate = validate,
-            quantized = quantized,
+            file=file,
+            s3_file=s3_file,
+            validate=validate,
+            quantized=quantized,
         )
     else:
         file = download_from_string(
-            path = file,
-            module = module,
-            keys = keys,
-            validate = validate,
-            quantized = quantized,
+            path=file,
+            module=module,
+            keys=keys,
+            validate=validate,
+            quantized=quantized,
         )
     return file
