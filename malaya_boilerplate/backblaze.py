@@ -200,3 +200,33 @@ def check_file(
             quantized=quantized,
         )
     return file
+
+
+def upload(module, model, directory, malaya_library='malaya'):
+    from b2sdk.v1 import *
+    info = InMemoryAccountInfo()
+    b2_api = B2Api(info)
+
+    application_key_id = os.environ.get('backblaze_application_key_id')
+    application_key = os.environ.get('backblaze_application_key')
+    if not application_key_id or not application_key:
+        raise ValueError('must set `backblaze_application_key_id` and `backblaze_application_key` in environment to upload')
+    b2_api.authorize_account('production', application_key_id, application_key)
+    file_info = {'how': 'good-file'}
+    b2_bucket = b2_api.get_bucket_by_name(malaya_library)
+
+    key = f'{directory}/frozen_model.pb'
+    outPutname = f'{module}/{model}/model.pb'
+    b2_bucket.upload_local_file(
+        local_file=key,
+        file_name=outPutname,
+        file_infos=file_info,
+    )
+
+    key = f'{directory}/frozen_model.pb.quantized'
+    outPutname = f'{module}/{model}-quantized/model.pb'
+    b2_bucket.upload_local_file(
+        local_file=key,
+        file_name=outPutname,
+        file_infos=file_info,
+    )
