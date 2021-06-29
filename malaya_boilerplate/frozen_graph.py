@@ -260,7 +260,7 @@ def load_graph(frozen_graph_filename, **kwargs):
             graph_def.ParseFromString(f.read())
         except Exception as e:
             raise Exception(
-                f"{e}, file corrupted due to some reasons, please run `{__package__}.utils.delete_cache('{path}')` and try again"
+                f"{e}, file corrupted due to some reasons, please run `{__package__.replace('-', '_')}.utils.delete_cache('{path}')` and try again"
             )
 
     # https://github.com/onnx/tensorflow-onnx/issues/77#issuecomment-445066091

@@ -203,7 +203,7 @@ def check_file(
 
 
 def upload(module, model, directory, malaya_library='malaya'):
-    from b2sdk.v1 import *
+    from b2sdk.v1 import B2Api, InMemoryAccountInfo
     info = InMemoryAccountInfo()
     b2_api = B2Api(info)
 

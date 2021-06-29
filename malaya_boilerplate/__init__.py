@@ -1,4 +1,4 @@
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 
 __url__ = 'https://f000.backblazeb2.com/file/malaya-model/'
 __package__ = 'malaya'
