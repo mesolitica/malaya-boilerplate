@@ -4,7 +4,6 @@ import os
 import logging
 from . import __package__, __package_version__
 
-IS_GPU = None
 DEVICES = None
 
 
@@ -114,40 +113,6 @@ def available_gpu(refresh=False):
 
     devices = available_device(refresh=refresh)
     return [d for d in devices if 'GPU' in d[0] and 'XLA' not in d[0]]
-
-
-def gpu_available(refresh=False):
-    """
-    Check Malaya is GPU version.
-
-    Returns
-    -------
-    result : bool
-    """
-
-    import pkg_resources
-
-    global IS_GPU
-
-    if IS_GPU is None and not refresh:
-        IS_GPU = f'{__package__}-gpu' in [
-            p.project_name for p in pkg_resources.working_set
-        ]
-        if IS_GPU:
-            gpus = available_gpu()
-            IS_GPU = len(gpus) > 0
-    return IS_GPU
-
-
-def is_gpu_version():
-    """
-    Check Malaya is GPU version.
-
-    Returns
-    -------
-    result : bool
-    """
-    return gpu_available()
 
 
 def print_cache(location=None):

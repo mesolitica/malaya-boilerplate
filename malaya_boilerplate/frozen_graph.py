@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
-from .utils import gpu_available, available_gpu, _get_home
+from .utils import available_gpu, _get_home
 from . import __package__
 
 __home__, _ = _get_home()
@@ -68,8 +68,7 @@ def generate_session(graph, **kwargs):
     result : tensorflow.Session
     """
     config = tf.compat.v1.ConfigProto()
-    check_gpu = kwargs.get('check_gpu', True)
-    if gpu_available() or not check_gpu:
+    if len(available_gpu()):
         config.allow_soft_placement = True
         try:
             gpu_limit = float(kwargs.get('gpu_limit', 0.999))
@@ -101,7 +100,6 @@ def get_device(**kwargs):
             "`device` from `device:{no}` must one of ['XLA_CPU', 'XLA_CPU_JIT', 'CPU', 'GPU', 'XLA_GPU']"
         )
     auto_gpu = kwargs.get('auto_gpu', True)
-    check_gpu = kwargs.get('check_gpu', True)
     gpus = available_gpu()
 
     if auto_gpu and len(gpus) and 'GPU' not in device_type:
@@ -109,12 +107,11 @@ def get_device(**kwargs):
         device = gpu[0]
 
     if 'GPU' in device:
-        if not gpu_available() and (check_gpu or len(gpus)):
+        if not len(gpus):
             raise ValueError(f'gpu is not available but device is {device}')
 
-        if gpu_available() and check_gpu:
-            if not 0 <= no < len(gpus):
-                raise ValueError(f'gpu must 0 <= gpu < {len(gpus)}')
+        if not 0 <= no < len(gpus):
+            raise ValueError(f'gpu must 0 <= gpu < {len(gpus)}')
 
     return f'/device:{device}'
 
