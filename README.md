@@ -90,19 +90,6 @@ def available_gpu(refresh = False):
     """
 ```
 
-#### malaya_boilerplate.utils.gpu_available
-
-```python
-def gpu_available(refresh = False):
-    """
-    Check Malaya is GPU version.
-
-    Returns
-    -------
-    result : bool
-    """
-```
-
 #### malaya_boilerplate.utils.print_cache
 
 ```python
