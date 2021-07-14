@@ -108,7 +108,7 @@ def download_from_string(
 
     if quantized:
         path = os.path.join(module, f'{path}-quantized')
-        quantized_path = os.path.join(path, 'model.pb')
+        quantized_path = os.path.join(path, 'model.pb').replace('\\', '/')
         if not check_file_cloud(quantized_path)[0]:
             raise Exception(
                 f'Quantized model for `{os.path.join(module, model)}` is not available, please load normal model.'
@@ -126,6 +126,7 @@ def download_from_string(
         else:
             f_local = os.path.join(path_local, value)
             f_cloud = os.path.join(path, value)
+            f_cloud = f_cloud.replace('\\', '/')
         files_local[key] = f_local
         files_cloud[key] = f_cloud
     if validate:
@@ -138,16 +139,17 @@ def download_from_string(
         )
         if os.path.isfile(version):
             with open(version) as fopen:
-                if latest not in fopen.read():
-                    p = os.path.dirname(version)
-                    print(f'Found old version in {p}, deleting..')
-                    _delete_folder(p)
-                    download = True
-                else:
-                    for key, item in files_local.items():
-                        if not os.path.exists(item):
-                            download = True
-                            break
+                v = fopen.read()
+            if latest not in v:
+                p = os.path.dirname(version)
+                print(f'Found old version in {p}, deleting..')
+                _delete_folder(p)
+                download = True
+            else:
+                for key, item in files_local.items():
+                    if not os.path.exists(item):
+                        download = True
+                        break
         else:
             download = True
 
