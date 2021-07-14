@@ -3,6 +3,10 @@
         <img alt="logo" width="40%" src="malaya-boilerplate.png">
     </a>
 </p>
+<p align="center">
+    <a href="https://pypi.python.org/pypi/malaya-boilerplate"><img alt="Pypi version" src="https://badge.fury.io/py/malaya-boilerplate.svg"></a>
+    <a href="https://pypi.python.org/pypi/malaya-boilerplate"><img alt="Python3 version" src="https://img.shields.io/pypi/pyversions/malaya-boilerplate.svg"></a>
+</p>
 
 ---
 
