@@ -1,8 +1,7 @@
 from shutil import rmtree
 from pathlib import Path
-import os
 import logging
-from . import __package__, __package_version__
+import os
 
 DEVICES = None
 
@@ -13,24 +12,24 @@ def _delete_folder(folder):
             os.remove(os.path.join(root, file))
 
 
-def _get_home():
+def _get_home(package):
     home = os.environ.get(
-        f'{__package__.upper()}_CACHE',
-        os.path.join(str(Path.home()), __package__.title()),
+        f'{package.upper()}_CACHE',
+        os.path.join(str(Path.home()), package.title()),
     )
     version_path = os.path.join(home, 'version')
     return home, version_path
 
 
-def _delete_macos():
-    home, _ = _get_home()
+def _delete_macos(package):
+    home, _ = _get_home(package)
     macos = os.path.join(home, '__MACOSX')
     if os.path.exists(macos):
         rmtree(macos)
 
 
-def get_home():
-    home, version_path = _get_home()
+def get_home(package, package_version):
+    home, version_path = _get_home(package)
 
     try:
         if not os.path.exists(home):
@@ -40,10 +39,10 @@ def get_home():
             f'Malaya cannot make directory for caching. Please check your {home}'
         )
 
-    _delete_macos()
+    _delete_macos(package=package)
     if not os.path.isfile(version_path):
         with open(version_path, 'w') as fopen:
-            fopen.write(__package_version__)
+            fopen.write(package_version)
     else:
         with open(version_path, 'r') as fopen:
             cached_version = fopen.read()
@@ -51,10 +50,10 @@ def get_home():
             if float(cached_version) < 1:
                 _delete_folder(home)
                 with open(version_path, 'w') as fopen:
-                    fopen.write(__package_version__)
+                    fopen.write(package_version)
         except BaseException:
             with open(version_path, 'w') as fopen:
-                fopen.write(__package_version__)
+                fopen.write(package_version)
 
     return home, version_path
 
@@ -115,7 +114,7 @@ def available_gpu(refresh=False):
     return [d for d in devices if 'GPU' in d[0] and 'XLA' not in d[0]]
 
 
-def print_cache(location=None):
+def print_cache(package, location=None):
     """
     Print cached data, this will print entire cache folder if let location = None.
 
@@ -126,14 +125,14 @@ def print_cache(location=None):
 
     """
 
-    home, _ = _get_home()
+    home, _ = _get_home(package=package)
     path = os.path.join(home, location) if location else home
     paths = DisplayablePath.make_tree(Path(path))
     for path in paths:
         print(path.displayable())
 
 
-def delete_cache(location):
+def delete_cache(package, location):
     """
     Remove selected cached data, please run print_cache() to get path.
 
@@ -146,28 +145,28 @@ def delete_cache(location):
     result : boolean
     """
 
-    home, _ = _get_home()
+    home, _ = _get_home(package=package)
     if not isinstance(location, str):
         raise ValueError('location must be a string')
     location = os.path.join(home, location)
     if not os.path.exists(location):
         raise Exception(
-            f'folder not exist, please check path from `{__package__}.utils.print_cache()`'
+            f"folder not exist, please check path from `{package.replace('-', '_')}.utils.print_cache()`"
         )
     if not os.path.isdir(location):
         raise Exception(
-            f'Please use parent directory, please check path from `{__package__}.utils.print_cache()`'
+            f"Please use parent directory, please check path from `{package.replace('-', '_')}.utils.print_cache()`"
         )
     _delete_folder(location)
     return True
 
 
-def delete_all_cache():
+def delete_all_cache(package):
     """
     Remove cached data, this will delete entire cache folder.
     """
-    _delete_macos()
-    home, _ = _get_home()
+    _delete_macos(package)
+    home, _ = _get_home(package)
     try:
         _delete_folder(home)
         with open(version_path, 'w') as fopen:
@@ -175,7 +174,7 @@ def delete_all_cache():
         return True
     except BaseException:
         raise Exception(
-            f'failed to clear cached models. Please make sure {home} is able to overwrite from Malaya'
+            f'failed to clear cached models. Please make sure {home} is able to overwrite from {package}'
         )
 
 
@@ -185,7 +184,7 @@ def close_session(model):
 
     Parameters
     ----------
-    model : malaya object.
+    model : Malaya object.
 
     Returns
     -------

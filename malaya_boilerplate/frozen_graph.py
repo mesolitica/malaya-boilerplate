@@ -5,9 +5,6 @@ import tensorflow as tf
 from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
 from .utils import available_gpu, _get_home
-from . import __package__
-
-__home__, _ = _get_home()
 
 
 def check_tf_version():
@@ -36,7 +33,7 @@ else:
         import warnings
 
         warnings.warn(
-            'Cannot import beam_search_ops from Tensorflow, `deep_model` for stemmer will not available to use, make sure Tensorflow 1 version >= 1.15'
+            'Cannot import beam_search_ops from Tensorflow 1, `deep_model` for stemmer will not available to use, make sure Tensorflow 1 version >= 1.15'
         )
 
 
@@ -195,7 +192,7 @@ def convert_graph_precision(source_graph_def, target_type='FP16'):
     return source_graph_def
 
 
-def load_graph(frozen_graph_filename, **kwargs):
+def load_graph(package, frozen_graph_filename, **kwargs):
     """
     Load frozen graph from a checkpoint.
 
@@ -246,7 +243,9 @@ def load_graph(frozen_graph_filename, **kwargs):
             '`precision_mode` must `FP32` if use TensorRT, set `tensorrt_precision_mode` instead.'
         )
 
-    path = frozen_graph_filename.replace(__home__, '')
+    home, _ = _get_home(package=package)
+
+    path = frozen_graph_filename.replace(home, '')
     path = os.path.sep.join(os.path.normpath(path).split(os.path.sep)[1:-1])
 
     logging.info(f'running {path} using device {device}')
@@ -257,7 +256,7 @@ def load_graph(frozen_graph_filename, **kwargs):
             graph_def.ParseFromString(f.read())
         except Exception as e:
             raise Exception(
-                f"{e}, file corrupted due to some reasons, please run `{__package__.replace('-', '_')}.utils.delete_cache('{path}')` and try again"
+                f"{e}, file corrupted due to some reasons, please run `{package.replace('-', '_')}.utils.delete_cache('{path}')` and try again"
             )
 
     # https://github.com/onnx/tensorflow-onnx/issues/77#issuecomment-445066091
