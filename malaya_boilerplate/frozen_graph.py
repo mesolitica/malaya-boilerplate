@@ -209,13 +209,13 @@ def load_graph(package, frozen_graph_filename, **kwargs):
         if device is not a gpu, `load_graph` will throw an error.
     precision_mode: str, optional (default='FP32')
         change precision frozen graph, only supported one of ['BFLOAT16', 'FP16', 'FP32', 'FP64'].
-    device: str, optional (default='CPU:0')
-        device to use for specific model, read more at https://www.tensorflow.org/guide/gpu
     auto_gpu: bool, optional (default=True)
         if installed gpu version, will automatically allocate a model to a gpu with the most empty memory.
     t5_graph: bool, optional (default=False)
         if True, will replace static shape to dynamic shape for first element in batch.
-        This should do for T5 models.
+        This should do for T5 models only.
+    device: str, optional (default='CPU:0')
+        device to use for specific model, read more at https://www.tensorflow.org/guide/gpu
 
     Returns
     -------
@@ -227,6 +227,7 @@ def load_graph(package, frozen_graph_filename, **kwargs):
         'tensorrt_precision_mode', 'FP32'
     ).upper()
     precision_mode = kwargs.get('precision_mode', 'FP32').upper()
+    t5_graph = kwargs.get('t5_graph', False)
     device = get_device(**kwargs)
 
     if tensorrt_precision_mode not in {'FP32', 'FP16', 'INT8'}:

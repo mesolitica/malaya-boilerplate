@@ -23,7 +23,7 @@
 #### malaya_boilerplate.frozen_graph.load_graph
 
 ```python
-def load_graph(frozen_graph_filename, **kwargs):
+def load_graph(package, frozen_graph_filename, **kwargs):
     """
     Load frozen graph from a checkpoint.
 
@@ -37,10 +37,13 @@ def load_graph(frozen_graph_filename, **kwargs):
         if device is not a gpu, `load_graph` will throw an error.
     precision_mode: str, optional (default='FP32')
         change precision frozen graph, only supported one of ['BFLOAT16', 'FP16', 'FP32', 'FP64'].
-    device: str, optional (default='CPU:0')
-        device to use for specific model, read more at https://www.tensorflow.org/guide/gpu
     auto_gpu: bool, optional (default=True)
         if installed gpu version, will automatically allocate a model to a gpu with the most empty memory.
+    t5_graph: bool, optional (default=False)
+        if True, will replace static shape to dynamic shape for first element in batch.
+        This should do for T5 models only.
+    device: str, optional (default='CPU:0')
+        device to use for specific model, read more at https://www.tensorflow.org/guide/gpu
 
     Returns
     -------
@@ -98,7 +101,7 @@ def available_gpu(refresh = False):
 #### malaya_boilerplate.utils.print_cache
 
 ```python
-def print_cache(location = None):
+def print_cache(package, location=None):
     """
     Print cached data, this will print entire cache folder if let location = None.
 
@@ -113,7 +116,7 @@ def print_cache(location = None):
 #### malaya_boilerplate.utils.delete_cache
 
 ```python
-def delete_cache(location):
+def delete_cache(package, location):
     """
     Remove selected cached data, please run print_cache() to get path.
 
@@ -130,7 +133,7 @@ def delete_cache(location):
 #### malaya_boilerplate.utils.delete_all_cache
 
 ```python
-def delete_all_cache():
+def delete_all_cache(package):
     """
     Remove cached data, this will delete entire cache folder.
     """
