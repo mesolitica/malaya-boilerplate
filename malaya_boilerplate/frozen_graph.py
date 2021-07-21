@@ -2,9 +2,12 @@ import os
 import logging
 import numpy as np
 import tensorflow as tf
+import struct
 from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
 from .utils import available_gpu, _get_home
+
+UNKNOWN = b'\xff\xff\xff\xff'
 
 
 def check_tf_version():
@@ -210,6 +213,9 @@ def load_graph(package, frozen_graph_filename, **kwargs):
         device to use for specific model, read more at https://www.tensorflow.org/guide/gpu
     auto_gpu: bool, optional (default=True)
         if installed gpu version, will automatically allocate a model to a gpu with the most empty memory.
+    t5_graph: bool, optional (default=False)
+        if True, will replace static shape to dynamic shape for first element in batch.
+        This should do for T5 models.
 
     Returns
     -------
@@ -292,6 +298,17 @@ def load_graph(package, frozen_graph_filename, **kwargs):
                 node.op = 'Identity'
                 node.attr.setdefault('T')
                 del node.attr['_disable_call_shape_inference']
+
+        if ('Reshape/shape' in node.name or 'Reshape_1/shape' in node.name) and t5_graph:
+            b = node.attr['value'].tensor.tensor_content
+            arr_int = [int.from_bytes(b[i:i + 4], 'little') for i in range(0, len(b), 4)]
+            if len(arr_int):
+                arr_byte = [UNKNOWN] + [struct.pack('<i', i) for i in arr_int[1:]]
+                arr_byte = b''.join(arr_byte)
+                node.attr['value'].tensor.tensor_content = arr_byte
+
+            if len(node.attr['value'].tensor.int_val):
+                node.attr['value'].tensor.int_val[0] = -1
 
     if use_tensorrt:
         print(
