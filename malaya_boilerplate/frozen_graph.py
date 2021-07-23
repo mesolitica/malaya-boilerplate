@@ -72,6 +72,7 @@ def generate_session(graph, **kwargs):
         config.allow_soft_placement = True
         try:
             gpu_limit = float(kwargs.get('gpu_limit', 0.999))
+            logging.debug(f'gpu_limit: {gpu_limit}')
         except BaseException:
             raise ValueError('gpu_limit must be a float')
         if not 0 < gpu_limit < 1:
@@ -223,11 +224,15 @@ def load_graph(package, frozen_graph_filename, **kwargs):
     """
 
     use_tensorrt = kwargs.get('use_tensorrt', False)
+    logging.debug(f'use_tensorrt: {use_tensorrt}')
     tensorrt_precision_mode = kwargs.get(
         'tensorrt_precision_mode', 'FP32'
     ).upper()
+    logging.debug(f'tensorrt_precision_mode: {tensorrt_precision_mode}')
     precision_mode = kwargs.get('precision_mode', 'FP32').upper()
+    logging.debug(f'precision_mode: {precision_mode}')
     t5_graph = kwargs.get('t5_graph', False)
+    logging.debug(f't5_graph: {t5_graph}')
     device = get_device(**kwargs)
 
     if tensorrt_precision_mode not in {'FP32', 'FP16', 'INT8'}:
