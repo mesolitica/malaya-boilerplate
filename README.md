@@ -42,6 +42,8 @@ def load_graph(package, frozen_graph_filename, **kwargs):
     t5_graph: bool, optional (default=False)
         if True, will replace static shape to dynamic shape for first element in batch.
         This should do for T5 models only.
+    glowtts_graph: bool, optional (default=False)
+        if True, will have some extra condition for glowTTS models.
     device: str, optional (default='CPU:0')
         device to use for specific model, read more at https://www.tensorflow.org/guide/gpu
 

@@ -235,6 +235,8 @@ def load_graph(package, frozen_graph_filename, **kwargs):
     logging.debug(f'precision_mode: {precision_mode}')
     t5_graph = kwargs.get('t5_graph', False)
     logging.debug(f't5_graph: {t5_graph}')
+    glowtts_graph = kwargs.get('glowtts_graph', False)
+    logging.debug(f'glowtts_graph: {glowtts_graph}')
     device = get_device(**kwargs)
 
     if tensorrt_precision_mode not in {'FP32', 'FP16', 'INT8'}:
