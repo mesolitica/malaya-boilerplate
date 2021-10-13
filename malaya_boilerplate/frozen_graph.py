@@ -215,6 +215,8 @@ def load_graph(package, frozen_graph_filename, **kwargs):
     t5_graph: bool, optional (default=False)
         if True, will replace static shape to dynamic shape for first element in batch.
         This should do for T5 models only.
+    glowtts_graph: bool, optional (default=False)
+        if True, will have some extra condition for glowTTS models.
     device: str, optional (default='CPU:0')
         device to use for specific model, read more at https://www.tensorflow.org/guide/gpu
 
@@ -287,7 +289,11 @@ def load_graph(package, frozen_graph_filename, **kwargs):
             node.op = 'Add'
             if 'use_locking' in node.attr:
                 del node.attr['use_locking']
-        elif node.op == 'Assign':
+        elif node.op in ['Assign', 'AssignVariableOp']:
+            if node.op == 'AssignVariableOp':
+                node.attr.setdefault('T')
+                node.attr['T'].type = node.attr['dtype'].type
+                del node.attr['dtype']
             node.op = 'Identity'
             if 'use_locking' in node.attr:
                 del node.attr['use_locking']
@@ -304,6 +310,8 @@ def load_graph(package, frozen_graph_filename, **kwargs):
                 node.op = 'Identity'
                 node.attr.setdefault('T')
                 del node.attr['_disable_call_shape_inference']
+        elif node.op == 'Switch' and 'wave_net_block' in node.name and 'AssignVariableOp_' in node.name and glowtts_graph:
+            node.attr['T'].type = 1
 
         if ('Reshape/shape' in node.name or 'Reshape_1/shape' in node.name) and t5_graph:
             b = node.attr['value'].tensor.tensor_content
