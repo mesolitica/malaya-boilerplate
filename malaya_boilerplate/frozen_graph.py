@@ -217,6 +217,8 @@ def load_graph(package, frozen_graph_filename, **kwargs):
         This should do for T5 models only.
     glowtts_graph: bool, optional (default=False)
         if True, will have some extra condition for glowTTS models.
+    glowtts_multispeaker_graph: bool, optional (default=False)
+        if True, will have some extra condition for glowTTS Multispeaker models.
     device: str, optional (default='CPU:0')
         device to use for specific model, read more at https://www.tensorflow.org/guide/gpu
 
@@ -233,10 +235,15 @@ def load_graph(package, frozen_graph_filename, **kwargs):
     logging.debug(f'tensorrt_precision_mode: {tensorrt_precision_mode}')
     precision_mode = kwargs.get('precision_mode', 'FP32').upper()
     logging.debug(f'precision_mode: {precision_mode}')
+
     t5_graph = kwargs.get('t5_graph', False)
     logging.debug(f't5_graph: {t5_graph}')
+
     glowtts_graph = kwargs.get('glowtts_graph', False)
     logging.debug(f'glowtts_graph: {glowtts_graph}')
+
+    glowtts_multispeaker_graph = kwargs.get('glowtts_multispeaker_graph', False)
+    logging.debug(f'glowtts_multispeaker_graph: {glowtts_multispeaker_graph}')
     device = get_device(**kwargs)
 
     if tensorrt_precision_mode not in {'FP32', 'FP16', 'INT8'}:
@@ -312,7 +319,16 @@ def load_graph(package, frozen_graph_filename, **kwargs):
                 node.op = 'Identity'
                 node.attr.setdefault('T')
                 del node.attr['_disable_call_shape_inference']
-        elif node.op == 'Switch' and 'wave_net_block' in node.name and 'AssignVariableOp_' in node.name and glowtts_graph:
+        elif (node.op == 'Switch'
+              and 'wave_net_block' in node.name
+              and 'AssignVariableOp_' in node.name
+              and glowtts_graph):
+            node.attr['T'].type = 1
+        elif (node.op == 'Switch'
+              and 'wave_net' in node.name
+              and '/weight_normalization_' in node.name
+              and 'AssignVariableOp_' in node.name
+              and glowtts_multispeaker_graph):
             node.attr['T'].type = 1
 
         if ('Reshape/shape' in node.name or 'Reshape_1/shape' in node.name) and t5_graph:
