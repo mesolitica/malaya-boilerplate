@@ -1,4 +1,10 @@
 import os
+
+try:
+    os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
+except BaseException:
+    pass
+
 import logging
 import numpy as np
 import tensorflow as tf
@@ -6,6 +12,7 @@ import struct
 from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
 from .utils import available_gpu, _get_home
+
 
 UNKNOWN = b'\xff\xff\xff\xff'
 
@@ -343,7 +350,7 @@ def load_graph(package, frozen_graph_filename, **kwargs):
                 node.attr['value'].tensor.int_val[0] = -1
 
     if use_tensorrt:
-        print(
+        logging.info(
             f'Converting {path} to TensorRT with precision {tensorrt_precision_mode}.'
         )
         try:
@@ -360,7 +367,7 @@ def load_graph(package, frozen_graph_filename, **kwargs):
             )
 
     if precision_mode != 'FP32':
-        print(f'Converting {path} to {precision_mode}.')
+        logging.info(f'Converting {path} to {precision_mode}.')
         try:
             if precision_mode == 'BFLOAT16':
                 # some weird error related to range bfloat16

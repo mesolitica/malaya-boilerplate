@@ -82,7 +82,7 @@ def download_from_dict(file, s3_file, package, base_url, validate=True, quantize
                 if model == 'model' and key == 'quantized':
                     continue
                 if not os.path.isfile(item):
-                    print(f'downloading frozen {key} to {item}')
+                    logging.info(f'downloading frozen {key} to {item}')
                     download_file_cloud(base_url, s3_file[key], item)
             with open(version, 'w') as fopen:
                 fopen.write(file['version'])
@@ -141,7 +141,7 @@ def download_from_string(
                 v = fopen.read()
             if latest not in v:
                 p = os.path.dirname(version)
-                print(f'Found old version in {p}, deleting..')
+                logging.info(f'Found old version in {p}, deleting..')
                 _delete_folder(p)
                 download = True
             else:
@@ -158,7 +158,7 @@ def download_from_string(
                 if 'version' in key:
                     continue
                 if not os.path.isfile(item):
-                    print(f'downloading frozen {key} to {item}')
+                    logging.info(f'downloading frozen {key} to {item}')
                     versions.append(download_file_cloud(base_url, files_cloud[key], item))
             latest = str(max(versions))
             with open(version, 'w') as fopen:
