@@ -44,6 +44,8 @@ def load_graph(package, frozen_graph_filename, **kwargs):
         This should do for T5 models only.
     glowtts_graph: bool, optional (default=False)
         if True, will have some extra condition for glowTTS models.
+    glowtts_multispeaker_graph: bool, optional (default=False)
+        if True, will have some extra condition for glowTTS Multispeaker models.
     device: str, optional (default='CPU:0')
         device to use for specific model, read more at https://www.tensorflow.org/guide/gpu
 

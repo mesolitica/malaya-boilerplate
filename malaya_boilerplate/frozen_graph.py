@@ -273,10 +273,12 @@ def load_graph(package, frozen_graph_filename, **kwargs):
             '`precision_mode` must `FP32` if use TensorRT, set `tensorrt_precision_mode` instead.'
         )
 
-    home, _ = _get_home(package=package)
-
-    path = frozen_graph_filename.replace(home, '')
-    path = os.path.sep.join(os.path.normpath(path).split(os.path.sep)[1:-1])
+    if package is None:
+        path = frozen_graph_filename
+    else:
+        home, _ = _get_home(package=package)
+        path = frozen_graph_filename.replace(home, '')
+        path = os.path.sep.join(os.path.normpath(path).split(os.path.sep)[1:-1])
 
     logging.info(f'running {path} using device {device}')
 
@@ -285,9 +287,11 @@ def load_graph(package, frozen_graph_filename, **kwargs):
             graph_def = tf.compat.v1.GraphDef()
             graph_def.ParseFromString(f.read())
         except Exception as e:
-            raise Exception(
-                f"{e}, file corrupted due to some reasons, please run `{package.replace('-', '_')}.utils.delete_cache('{path}')` and try again"
-            )
+            if package is None:
+                exception_text = f'{e}, {path} corrupted, clear the cache and try again.'
+            else:
+                exception_text = f"{e}, file corrupted due to some reasons, please run `{package.replace('-', '_')}.utils.delete_cache('{path}')` and try again"
+            raise Exception(exception_text)
 
     # https://github.com/onnx/tensorflow-onnx/issues/77#issuecomment-445066091
     # to fix import T5
