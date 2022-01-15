@@ -2,7 +2,10 @@ import requests
 import os
 import logging
 from tqdm import tqdm
+from glob import glob
 from .utils import _delete_folder, _get_home
+
+logger = logging.getLogger('backblaze')
 
 
 def check_file_cloud(base_url, url):
@@ -52,7 +55,7 @@ def download_from_dict(file, s3_file, package, base_url, validate=True, quantize
                 f'Quantized model for {f[1]} module is not available, please load normal model.'
             )
         model = 'quantized'
-        logging.warning('Load quantized model will cause accuracy drop.')
+        logger.warning('Load quantized model will cause accuracy drop.')
     else:
         model = 'model'
     if validate:
@@ -82,7 +85,7 @@ def download_from_dict(file, s3_file, package, base_url, validate=True, quantize
                 if model == 'model' and key == 'quantized':
                     continue
                 if not os.path.isfile(item):
-                    logging.info(f'downloading frozen {key} to {item}')
+                    logger.info(f'downloading frozen {key} to {item}')
                     download_file_cloud(base_url, s3_file[key], item)
             with open(version, 'w') as fopen:
                 fopen.write(file['version'])
@@ -112,7 +115,7 @@ def download_from_string(
             raise Exception(
                 f'Quantized model for `{os.path.join(module, model)}` is not available, please load normal model.'
             )
-        logging.warning('Load quantized model will cause accuracy drop.')
+        logger.warning('Load quantized model will cause accuracy drop.')
     else:
         path = os.path.join(module, path)
     path_local = os.path.join(home, path)
@@ -141,7 +144,7 @@ def download_from_string(
                 v = fopen.read()
             if latest not in v:
                 p = os.path.dirname(version)
-                logging.info(f'Found old version in {p}, deleting..')
+                logger.info(f'Found old version in {p}, deleting..')
                 _delete_folder(p)
                 download = True
             else:
@@ -158,7 +161,7 @@ def download_from_string(
                 if 'version' in key:
                     continue
                 if not os.path.isfile(item):
-                    logging.info(f'downloading frozen {key} to {item}')
+                    logger.info(f'downloading frozen {key} to {item}')
                     versions.append(download_file_cloud(base_url, files_cloud[key], item))
             latest = str(max(versions))
             with open(version, 'w') as fopen:
@@ -209,31 +212,45 @@ def check_file(
     return file
 
 
-def upload(module, model, directory, malaya_library='malaya'):
+def upload(module: str, model: str, directory: str, bucket: str = 'malaya',
+           application_key_id: str = os.environ.get('backblaze_application_key_id'),
+           application_key: str = os.environ.get('backblaze_application_key')):
+    """
+    Upload directory with malaya-style pattern.
+
+    Parameters
+    ----------
+    module: str
+    model: str
+    directory: str
+    bucket: str, optional (default='malaya')
+    application_key_id: str, optional (default=os.environ.get('backblaze_application_key_id'))
+    application_key: str, optional (default=os.environ.get('backblaze_application_key'))
+    """
+
+    if not application_key_id or not application_key:
+        raise ValueError('must set `backblaze_application_key_id` and `backblaze_application_key` are None.')
+
     from b2sdk.v1 import B2Api, InMemoryAccountInfo
     info = InMemoryAccountInfo()
     b2_api = B2Api(info)
 
-    application_key_id = os.environ.get('backblaze_application_key_id')
-    application_key = os.environ.get('backblaze_application_key')
-    if not application_key_id or not application_key:
-        raise ValueError('must set `backblaze_application_key_id` and `backblaze_application_key` in environment to upload')
     b2_api.authorize_account('production', application_key_id, application_key)
     file_info = {'how': 'good-file'}
-    b2_bucket = b2_api.get_bucket_by_name(malaya_library)
+    b2_bucket = b2_api.get_bucket_by_name(bucket)
 
-    key = f'{directory}/frozen_model.pb'
-    outPutname = f'{module}/{model}/model.pb'
-    b2_bucket.upload_local_file(
-        local_file=key,
-        file_name=outPutname,
-        file_infos=file_info,
-    )
+    for file in glob(os.path.join(directory, '*')):
+        if file.endswith('frozen_model.pb'):
+            outPutname = f'{module}/{model}/model.pb'
+        elif file.endswith('frozen_model.pb.quantized'):
+            outPutname = f'{module}/{model}-quantized/model.pb'
+        else:
+            outPutname = f'{module}/{model}/{file}'
 
-    key = f'{directory}/frozen_model.pb.quantized'
-    outPutname = f'{module}/{model}-quantized/model.pb'
-    b2_bucket.upload_local_file(
-        local_file=key,
-        file_name=outPutname,
-        file_infos=file_info,
-    )
+        logger.info(f'Uploading from local {file} to {bucket}/{outPutname}')
+
+        b2_bucket.upload_local_file(
+            local_file=file,
+            file_name=outPutname,
+            file_infos=file_info,
+        )

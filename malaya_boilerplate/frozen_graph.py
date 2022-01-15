@@ -13,7 +13,7 @@ from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
 from .utils import available_gpu, _get_home
 
-
+logger = logging.getLogger('frozen_graph')
 UNKNOWN = b'\xff\xff\xff\xff'
 
 
@@ -79,7 +79,7 @@ def generate_session(graph, **kwargs):
         config.allow_soft_placement = True
         try:
             gpu_limit = float(kwargs.get('gpu_limit', 0.999))
-            logging.debug(f'gpu_limit: {gpu_limit}')
+            logger.debug(f'gpu_limit: {gpu_limit}')
         except BaseException:
             raise ValueError('gpu_limit must be a float')
         if not 0 < gpu_limit < 1:
@@ -235,22 +235,22 @@ def load_graph(package, frozen_graph_filename, **kwargs):
     """
 
     use_tensorrt = kwargs.get('use_tensorrt', False)
-    logging.debug(f'use_tensorrt: {use_tensorrt}')
+    logger.debug(f'use_tensorrt: {use_tensorrt}')
     tensorrt_precision_mode = kwargs.get(
         'tensorrt_precision_mode', 'FP32'
     ).upper()
-    logging.debug(f'tensorrt_precision_mode: {tensorrt_precision_mode}')
+    logger.debug(f'tensorrt_precision_mode: {tensorrt_precision_mode}')
     precision_mode = kwargs.get('precision_mode', 'FP32').upper()
-    logging.debug(f'precision_mode: {precision_mode}')
+    logger.debug(f'precision_mode: {precision_mode}')
 
     t5_graph = kwargs.get('t5_graph', False)
-    logging.debug(f't5_graph: {t5_graph}')
+    logger.debug(f't5_graph: {t5_graph}')
 
     glowtts_graph = kwargs.get('glowtts_graph', False)
-    logging.debug(f'glowtts_graph: {glowtts_graph}')
+    logger.debug(f'glowtts_graph: {glowtts_graph}')
 
     glowtts_multispeaker_graph = kwargs.get('glowtts_multispeaker_graph', False)
-    logging.debug(f'glowtts_multispeaker_graph: {glowtts_multispeaker_graph}')
+    logger.debug(f'glowtts_multispeaker_graph: {glowtts_multispeaker_graph}')
     device = get_device(**kwargs)
 
     if tensorrt_precision_mode not in {'FP32', 'FP16', 'INT8'}:
@@ -280,7 +280,7 @@ def load_graph(package, frozen_graph_filename, **kwargs):
         path = frozen_graph_filename.replace(home, '')
         path = os.path.sep.join(os.path.normpath(path).split(os.path.sep)[1:-1])
 
-    logging.info(f'running {path} using device {device}')
+    logger.info(f'running {path} using device {device}')
 
     with tf.io.gfile.GFile(frozen_graph_filename, 'rb') as f:
         try:
@@ -354,7 +354,7 @@ def load_graph(package, frozen_graph_filename, **kwargs):
                 node.attr['value'].tensor.int_val[0] = -1
 
     if use_tensorrt:
-        logging.info(
+        logger.info(
             f'Converting {path} to TensorRT with precision {tensorrt_precision_mode}.'
         )
         try:
@@ -371,7 +371,7 @@ def load_graph(package, frozen_graph_filename, **kwargs):
             )
 
     if precision_mode != 'FP32':
-        logging.info(f'Converting {path} to {precision_mode}.')
+        logger.info(f'Converting {path} to {precision_mode}.')
         try:
             if precision_mode == 'BFLOAT16':
                 # some weird error related to range bfloat16
