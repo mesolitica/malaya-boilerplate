@@ -23,7 +23,7 @@ def check_file(
     pass
 
 
-def upload(model: str, directory: str, username: HUGGINGFACE_USERNAME):
+def upload(model: str, directory: str, username: str = HUGGINGFACE_USERNAME):
     """
     Upload to huggingface repository, make sure already login using CLI,
     ```
