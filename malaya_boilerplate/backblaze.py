@@ -95,9 +95,7 @@ def download_from_dict(file, s3_file, package, base_url, validate=True, quantize
             path = os.path.sep.join(
                 os.path.normpath(path).split(os.path.sep)[1:-1]
             )
-            raise Exception(
-                f'{path} is not available, please `validate = True`'
-            )
+            raise OSError(f'{path} is not available, please `validate = True`')
 
 
 def download_from_string(
@@ -112,7 +110,7 @@ def download_from_string(
         path = os.path.join(module, f'{path}-quantized')
         quantized_path = os.path.join(path, 'model.pb').replace('\\', '/')
         if not check_file_cloud(base_url, quantized_path)[0]:
-            raise Exception(
+            raise ValueError(
                 f'Quantized model for `{os.path.join(module, model)}` is not available, please load normal model.'
             )
         logger.warning('Load quantized model will cause accuracy drop.')
@@ -173,9 +171,7 @@ def download_from_string(
             path = os.path.sep.join(
                 os.path.normpath(path).split(os.path.sep)[1:-1]
             )
-            raise Exception(
-                f'{path} is not available, please `validate = True`'
-            )
+            raise OSError(f'{path} is not available, please `validate = True`')
     return files_local
 
 
@@ -190,6 +186,23 @@ def check_file(
     quantized=False,
     **kwargs,
 ):
+    """
+    path = check_file(
+        file=model,
+        module=module,
+        keys={
+            'model': 'model.pb',
+            'vocab': MODEL_VOCAB[model],
+            'tokenizer': MODEL_BPE[model],
+        },
+        quantized=quantized,
+        **kwargs,
+    )
+
+    or,
+
+    check_file(path['multinomial'], s3_path['multinomial'], **kwargs)
+    """
     if isinstance(file, dict) and isinstance(s3_file, dict):
         download_from_dict(
             file=file,
@@ -212,7 +225,7 @@ def check_file(
     return file
 
 
-def upload(module: str, model: str, directory: str, bucket: str = 'malaya',
+def upload(model: str, directory: str, bucket: str = 'malaya',
            application_key_id: str = os.environ.get('backblaze_application_key_id'),
            application_key: str = os.environ.get('backblaze_application_key')):
     """
@@ -220,10 +233,12 @@ def upload(module: str, model: str, directory: str, bucket: str = 'malaya',
 
     Parameters
     ----------
-    module: str
     model: str
+        it will become directory name.
     directory: str
+        local directory with files in it.
     bucket: str, optional (default='malaya')
+        backblaze bucket.
     application_key_id: str, optional (default=os.environ.get('backblaze_application_key_id'))
     application_key: str, optional (default=os.environ.get('backblaze_application_key'))
     """
@@ -241,11 +256,11 @@ def upload(module: str, model: str, directory: str, bucket: str = 'malaya',
 
     for file in glob(os.path.join(directory, '*')):
         if file.endswith('frozen_model.pb'):
-            outPutname = f'{module}/{model}/model.pb'
+            outPutname = f'{model}/model.pb'
         elif file.endswith('frozen_model.pb.quantized'):
-            outPutname = f'{module}/{model}-quantized/model.pb'
+            outPutname = f'{model}-quantized/model.pb'
         else:
-            outPutname = f'{module}/{model}/{file}'
+            outPutname = f'{model}/{file}'
 
         logger.info(f'Uploading from local {file} to {bucket}/{outPutname}')
 
