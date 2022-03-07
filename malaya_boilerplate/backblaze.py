@@ -50,7 +50,7 @@ def download_from_dict(file, s3_file, package, base_url, validate=True, quantize
     home, _ = _get_home(package=package)
     if quantized:
         if 'quantized' not in file:
-            f = file.replace(home, '').split('/')
+            f = file['model'].replace(home, '').split('/')
             raise ValueError(
                 f'Quantized model for {f[1]} module is not available, please load normal model.'
             )

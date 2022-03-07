@@ -1,12 +1,64 @@
-from huggingface_hub import create_repo, upload_file, hf_hub_download
+from huggingface_hub import (
+    create_repo,
+    upload_file,
+    hf_hub_download,
+    list_repo_files
+)
 import os
 import logging
 from glob import glob
 from typing import Dict
+from .utils import _get_home
 
 logger = logging.getLogger('huggingface')
 
 HUGGINGFACE_USERNAME = os.environ.get('HUGGINGFACE_USERNAME', 'huseinzol05')
+
+
+def download_from_dict(file, s3_file, package, quantized=False):
+    home, _ = _get_home(package=package)
+    if quantized:
+        if 'quantized' not in file:
+            f = file['model'].replace(home, '').split('/')
+            raise ValueError(
+                f'Quantized model for {f[1]} module is not available, please load normal model.'
+            )
+        model = 'quantized'
+        logger.warning('Load quantized model will cause accuracy drop.')
+    else:
+        model = 'model'
+
+    files = {}
+    for k, file in s3_file.items():
+        base_path, file = os.path.split(file)
+        base_path = base_path.replace('/', '-')
+        base_path = f'{HUGGINGFACE_USERNAME}/{base_path}'
+        logger.info(f'downloading frozen {base_path}/{file}')
+        files[k] = hf_hub_download(base_path, file)
+    return files
+
+
+def download_from_string(
+    path, module, keys, package, quantized=False
+):
+    model = path
+    repo_id = f'{HUGGINGFACE_USERNAME}/{module}-{model}'
+
+    if quantized:
+        repo_id = f'{repo_id}-{quantized}'
+        try:
+            list_repo_files(repo_id)
+        except:
+            raise ValueError(
+                f'Quantized model for `{os.path.join(module, model)}` is not available, please load normal model.'
+            )
+        logger.warning('Load quantized model will cause accuracy drop.')
+
+    files = {}
+    for k, file in keys.items():
+        files[k] = hf_hub_download(repo_id, file)
+
+    return files
 
 
 def check_file(
@@ -16,11 +68,42 @@ def check_file(
     s3_file=None,
     module=None,
     keys=None,
-    validate=True,
     quantized=False,
     **kwargs,
 ):
-    pass
+    """
+    path = check_file(
+        file=model,
+        module=module,
+        keys={
+            'model': 'model.pb',
+            'vocab': MODEL_VOCAB[model],
+            'tokenizer': MODEL_BPE[model],
+        },
+        quantized=quantized,
+        **kwargs,
+    )
+
+    or,
+
+    check_file(path['multinomial'], s3_path['multinomial'], **kwargs)
+    """
+    if isinstance(file, dict) and isinstance(s3_file, dict):
+        files = download_from_dict(
+            file=file,
+            s3_file=s3_file,
+            package=package,
+            quantized=quantized,
+        )
+    else:
+        files = download_from_string(
+            path=file,
+            module=module,
+            keys=keys,
+            package=package,
+            quantized=quantized,
+        )
+    return files
 
 
 def upload(model: str, directory: str, username: str = HUGGINGFACE_USERNAME):
