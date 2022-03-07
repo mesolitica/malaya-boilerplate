@@ -79,4 +79,4 @@ def upload_dict(model: str, files_mapping: Dict[str, str], username: str = HUGGI
         upload_file(path_or_fileobj=k,
                     path_in_repo=k,
                     repo_id=repo_id)
-        logger.info(f'Uploading from local {file} to {repo_id}')
+        logger.info(f'Uploading from local {k} to {repo_id}')
