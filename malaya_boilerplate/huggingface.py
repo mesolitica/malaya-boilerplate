@@ -46,11 +46,11 @@ def upload(model: str, directory: str, username: HUGGINGFACE_USERNAME):
     repo_id = f'{username}/{model}'
 
     for file in glob(os.path.join(directory, '*')):
-
+        file_remote = os.path.split(file)[1]
         upload_file(path_or_fileobj=file,
-                    path_in_repo=os.path.split(file)[1],
+                    path_in_repo=file_remote,
                     repo_id=repo_id)
-        logger.info(f'Uploading from local {file} to {repo_id}')
+        logger.info(f'Uploading from {file} to {repo_id}/{file_remote}')
 
 
 def upload_dict(model: str, files_mapping: Dict[str, str], username: str = HUGGINGFACE_USERNAME):
@@ -75,8 +75,8 @@ def upload_dict(model: str, files_mapping: Dict[str, str], username: str = HUGGI
 
     repo_id = f'{username}/{model}'
 
-    for k, v in files_mapping.items():
-        upload_file(path_or_fileobj=k,
-                    path_in_repo=k,
+    for file, file_remote in files_mapping.items():
+        upload_file(path_or_fileobj=file,
+                    path_in_repo=file_remote,
                     repo_id=repo_id)
-        logger.info(f'Uploading from local {k} to {repo_id}')
+        logger.info(f'Uploading from {file} to {repo_id}/{file_remote}')
