@@ -56,7 +56,14 @@ def download_from_string(
 
     files = {}
     for k, file in keys.items():
-        files[k] = hf_hub_download(repo_id, file)
+        if '/' in file:
+            splitted = os.path.split(file)
+            repo_id_ = splitted[0].replace('/', '-')
+            repo_id_ = f'{HUGGINGFACE_USERNAME}/{repo_id_}'
+            file = splitted[1]
+        else:
+            repo_id_ = repo_id
+        files[k] = hf_hub_download(repo_id_, file)
 
     return files
 
