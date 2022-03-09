@@ -19,7 +19,7 @@ def check_file_cloud(base_url, url):
     return exist, version
 
 
-def check_files_local(file):
+def check_local_files(file):
     for key, item in file.items():
         if 'version' in key:
             continue
@@ -44,6 +44,19 @@ def download_file_cloud(base_url, url, filename):
         ):
             f.write(data)
     return version
+
+
+def validate_local_file(base_url, url, filename):
+    if 'http' not in url:
+        url = base_url + url
+    r = requests.get(url, stream=True)
+    total_size = int(r.headers['content-length'])
+    local_size = os.path.getsize(filename)
+    validated = local_size == total_size
+    if not validated:
+        logger.warning(
+            f'size of local {filename} ({local_size / 1e6} MB) not matched with size from {url} ({total_size / 1e6} MB)')
+    return validated
 
 
 def download_from_dict(file, s3_file, package, base_url, validate=True, quantized=False):
@@ -84,13 +97,13 @@ def download_from_dict(file, s3_file, package, base_url, validate=True, quantize
                     continue
                 if model == 'model' and key == 'quantized':
                     continue
-                if not os.path.isfile(item):
+                if not os.path.isfile(item) or not validate_local_file(base_url, s3_file[key], item):
                     logger.info(f'downloading frozen {key} to {item}')
                     download_file_cloud(base_url, s3_file[key], item)
             with open(version, 'w') as fopen:
                 fopen.write(file['version'])
     else:
-        if not check_files_local(file):
+        if not check_local_files(file):
             path = file[model]
             path = os.path.sep.join(
                 os.path.normpath(path).split(os.path.sep)[1:-1]
@@ -158,7 +171,7 @@ def download_from_string(
             for key, item in files_local.items():
                 if 'version' in key:
                     continue
-                if not os.path.isfile(item):
+                if not os.path.isfile(item) or not validate_local_file(base_url, files_cloud[key], item):
                     logger.info(f'downloading frozen {key} to {item}')
                     versions.append(download_file_cloud(base_url, files_cloud[key], item))
             latest = str(max(versions))
@@ -166,7 +179,7 @@ def download_from_string(
                 fopen.write(latest)
 
     else:
-        if not check_files_local(files_local):
+        if not check_local_files(files_local):
             path = files_local['model']
             path = os.path.sep.join(
                 os.path.normpath(path).split(os.path.sep)[1:-1]

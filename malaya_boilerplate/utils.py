@@ -3,6 +3,7 @@ from pathlib import Path
 import logging
 import os
 
+logger = logging.getLogger('malaya.utils')
 DEVICES = None
 
 
@@ -60,9 +61,7 @@ def get_home(package, package_version):
 
 def describe_availability(dict, transpose=True, text=''):
     if len(text):
-        logging.basicConfig(level=logging.INFO)
-
-        logging.info(text)
+        logger.info(text)
     try:
         import pandas as pd
 
@@ -200,7 +199,7 @@ def close_session(model):
             model._sess.close()
             success = True
     except Exception as e:
-        logging.warning(e)
+        logger.warning(e)
     return success
 
 
