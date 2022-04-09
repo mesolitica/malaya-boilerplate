@@ -275,10 +275,10 @@ def upload(model: str, directory: str, bucket: str = 'malaya',
         else:
             outPutname = f'{model}/{file}'
 
-        logger.info(f'Uploading from local {file} to {bucket}/{outPutname}')
-
         b2_bucket.upload_local_file(
             local_file=file,
             file_name=outPutname,
             file_infos=file_info,
         )
+
+        logger.info(f'Uploaded from local {file} to {bucket}/{outPutname}')

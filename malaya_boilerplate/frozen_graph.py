@@ -1,10 +1,3 @@
-import os
-
-try:
-    os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
-except BaseException:
-    pass
-
 import logging
 import numpy as np
 import tensorflow as tf
