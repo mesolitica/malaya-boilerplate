@@ -269,6 +269,7 @@ def load_graph(package, frozen_graph_filename, **kwargs):
     if package is None:
         path = frozen_graph_filename
     else:
+        import os
         home, _ = _get_home(package=package)
         path = frozen_graph_filename.replace(home, '')
         path = os.path.sep.join(os.path.normpath(path).split(os.path.sep)[1:-1])
