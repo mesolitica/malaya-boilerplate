@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import tensorflow as tf
 import struct
+import os
 from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
 from .utils import available_gpu, _get_home
@@ -283,7 +284,7 @@ def load_graph(package, frozen_graph_filename, **kwargs):
             if package is None:
                 exception_text = f'{e}, {path} corrupted, clear the cache and try again.'
             else:
-                exception_text = f"{e}, file corrupted due to some reasons, please run `{package.replace('-', '_')}.utils.delete_cache('{path}')` and try again"
+                exception_text = f"{e}, file corrupted due to some reasons, please try `{package.replace('-', '_')}.utils.delete_cache('{path}')` and rerun again."
             raise Exception(exception_text)
 
     # https://github.com/onnx/tensorflow-onnx/issues/77#issuecomment-445066091
