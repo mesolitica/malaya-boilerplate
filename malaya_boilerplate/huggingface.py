@@ -45,7 +45,7 @@ def download_from_string(
     repo_id = f'{HUGGINGFACE_USERNAME}/{module}-{model}'
 
     if quantized:
-        repo_id = f'{repo_id}-{quantized}'
+        repo_id = f'{repo_id}-quantized'
         try:
             list_repo_files(repo_id)
         except:
