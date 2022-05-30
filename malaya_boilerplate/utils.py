@@ -3,7 +3,7 @@ from pathlib import Path
 import logging
 import os
 
-logger = logging.getLogger('malaya.utils')
+logger = logging.getLogger('malaya_boilerplate.utils')
 DEVICES = None
 
 

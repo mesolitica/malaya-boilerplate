@@ -7,7 +7,7 @@ from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
 from .utils import available_gpu, _get_home
 
-logger = logging.getLogger('frozen_graph')
+logger = logging.getLogger('malaya_boilerplate.frozen_graph')
 UNKNOWN = b'\xff\xff\xff\xff'
 
 
@@ -15,6 +15,13 @@ def check_tf_version():
     version = tf.__version__
     return int(version.split('.')[0])
 
+
+USED_TREE = [
+    'malaya.jawi_rumi.deep_model',
+    'malaya.phoneme.deep_model',
+    'malaya.rumi_jawi.deep_model',
+    'malaya.stem.deep_model',
+]
 
 if check_tf_version() > 1:
     try:
@@ -26,7 +33,7 @@ if check_tf_version() > 1:
         import warnings
 
         warnings.warn(
-            'Cannot import beam_search_ops from Tensorflow Addons, `deep_model` for stemmer will not available to use, make sure Tensorflow Addons version >= 0.12.0'
+            f'Cannot import beam_search_ops from Tensorflow Addons, {USED_TREE} will not available to use, make sure Tensorflow Addons version >= 0.12.0'
         )
 
 
@@ -37,7 +44,7 @@ else:
         import warnings
 
         warnings.warn(
-            'Cannot import beam_search_ops from Tensorflow 1, `deep_model` for stemmer will not available to use, make sure Tensorflow 1 version >= 1.15'
+            f'Cannot import beam_search_ops from Tensorflow 1, {USED_TREE} for stemmer will not available to use, make sure Tensorflow 1 version >= 1.15'
         )
 
 
