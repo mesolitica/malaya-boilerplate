@@ -9,6 +9,7 @@ import numpy as np
 import collections
 import re
 
+from . import config
 from . import loss
 from . import optimizer
 from . import prepare_data
