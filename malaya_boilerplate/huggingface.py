@@ -115,10 +115,7 @@ def check_file(
 
 def upload(model: str, directory: str, username: str = HUGGINGFACE_USERNAME):
     """
-    Upload to huggingface repository, make sure already login using CLI,
-    ```
-    huggingface-cli login
-    ```
+    Upload to huggingface repository, make sure already login using CLI.
 
     Parameters
     ----------
@@ -145,10 +142,7 @@ def upload(model: str, directory: str, username: str = HUGGINGFACE_USERNAME):
 
 def upload_dict(model: str, files_mapping: Dict[str, str], username: str = HUGGINGFACE_USERNAME):
     """
-    Upload to huggingface repository, make sure already login using CLI,
-    ```
-    huggingface-cli login
-    ```
+    Upload to huggingface repository, make sure already login using CLI.
 
     Parameters
     ----------

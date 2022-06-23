@@ -1,3 +1,7 @@
+"""
+Required Tensorflow 1, prefer to use NVIDIA https://github.com/NVIDIA/tensorflow
+"""
+
 import tensorflow as tf
 from tensorflow.python.distribute.cross_device_ops import (
     AllReduceCrossDeviceOps,
@@ -8,13 +12,6 @@ from typing import List, Dict
 import numpy as np
 import collections
 import re
-
-from . import config
-from . import loss
-from . import optimizer
-from . import prepare_data
-from . import schedule
-from . import utils
 
 
 @check_type

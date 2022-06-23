@@ -15,9 +15,35 @@
 
 ## Table of contents
 
+  * [malaya_boilerplate.backblaze](#malaya_boilerplate_backblaze)
   * [malaya_boilerplate.frozen_graph](#malaya_boilerplate_frozen_graph)
+  * [malaya_boilerplate.huggingface](#malaya_boilerplate_huggingface)
   * [malaya_boilerplate.utils](#malaya_boilerplate_utils)
-  
+
+### malaya_boilerplate.backblaze
+
+#### malaya_boilerplate.backblaze.upload
+
+```python
+def upload(model: str, directory: str, bucket: str = 'malaya',
+           application_key_id: str = os.environ.get('backblaze_application_key_id'),
+           application_key: str = os.environ.get('backblaze_application_key')):
+    """
+    Upload directory with malaya-style pattern.
+
+    Parameters
+    ----------
+    model: str
+        it will become directory name.
+    directory: str
+        local directory with files in it.
+    bucket: str, optional (default='malaya')
+        backblaze bucket.
+    application_key_id: str, optional (default=os.environ.get('backblaze_application_key_id'))
+    application_key: str, optional (default=os.environ.get('backblaze_application_key'))
+    """
+```
+
 ### malaya_boilerplate.frozen_graph
 
 #### malaya_boilerplate.frozen_graph.load_graph
@@ -71,6 +97,42 @@ def generate_session(graph, **kwargs):
     Returns
     -------
     result : tensorflow.Session
+    """
+```
+
+### malaya_boilerplate.huggingface
+
+#### malaya_boilerplate.huggingface.upload
+
+```python
+def upload(model: str, directory: str, username: str = HUGGINGFACE_USERNAME):
+    """
+    Upload to huggingface repository, make sure already login using CLI.
+
+    Parameters
+    ----------
+    model: str
+        it will become repository name.
+    directory: str
+        local directory with files in it.
+    username: str, optional (default=os.environ.get('HUGGINGFACE_USERNAME', 'huseinzol05'))
+    """
+```
+
+#### malaya_boilerplate.huggingface.upload_dict
+
+```python
+def upload_dict(model: str, files_mapping: Dict[str, str], username: str = HUGGINGFACE_USERNAME):
+    """
+    Upload to huggingface repository, make sure already login using CLI.
+
+    Parameters
+    ----------
+    model: str
+        it will become repository name.
+    files_mapping: Dict[str, str]
+        {local_file: target_file}
+    username: str, optional (default=os.environ.get('HUGGINGFACE_USERNAME', 'huseinzol05'))
     """
 ```
 
