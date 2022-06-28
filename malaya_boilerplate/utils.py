@@ -1,5 +1,7 @@
 from shutil import rmtree
 from pathlib import Path
+from packaging import version
+import tensorflow as tf
 import logging
 import os
 
@@ -281,3 +283,8 @@ class DisplayablePath(object):
             parent = parent.parent
 
         return ''.join(reversed(parts))
+
+
+def check_tf2_huggingface():
+    if version.parse(tf.__version__) < version.parse('2.0'):
+        raise Exception('Tensorflow version must >= 2.0 to use HuggingFace models.')
