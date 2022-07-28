@@ -10,7 +10,7 @@ from glob import glob
 from typing import Dict
 from .utils import _get_home
 
-logger = logging.getLogger('malaya_boilerplate.huggingface')
+logger = logging.getLogger(__name__)
 
 HUGGINGFACE_USERNAME = os.environ.get('HUGGINGFACE_USERNAME', 'huseinzol05')
 

@@ -6,7 +6,7 @@ from glob import glob
 from .frozen_graph import get_device
 from .utils import _get_home
 
-logger = logging.getLogger('malaya_boilerplate.saved_model')
+logger = logging.getLogger(__name__)
 
 try:
     if not tf.config.get_soft_device_placement():

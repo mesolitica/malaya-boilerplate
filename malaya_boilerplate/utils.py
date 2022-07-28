@@ -5,7 +5,7 @@ import tensorflow as tf
 import logging
 import os
 
-logger = logging.getLogger('malaya_boilerplate.utils')
+logger = logging.getLogger(__name__)
 DEVICES = None
 
 

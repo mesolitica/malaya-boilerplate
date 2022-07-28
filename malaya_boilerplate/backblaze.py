@@ -5,7 +5,7 @@ from tqdm import tqdm
 from glob import glob
 from .utils import _delete_folder, _get_home
 
-logger = logging.getLogger('malaya_boilerplate.backblaze')
+logger = logging.getLogger(__name__)
 
 
 def check_file_cloud(base_url, url):

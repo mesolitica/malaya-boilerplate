@@ -7,7 +7,7 @@ from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
 from .utils import available_gpu, _get_home
 
-logger = logging.getLogger('malaya_boilerplate.frozen_graph')
+logger = logging.getLogger(__name__)
 UNKNOWN = b'\xff\xff\xff\xff'
 
 
