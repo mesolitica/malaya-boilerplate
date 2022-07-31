@@ -13,6 +13,14 @@ import numpy as np
 import collections
 import re
 
+from . import optimizer
+from . import activation
+from . import config
+from . import loss
+from . import prepare_data
+from . import schedule
+from . import utils
+
 
 @check_type
 def run_training(
