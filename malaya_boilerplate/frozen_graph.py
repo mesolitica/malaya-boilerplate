@@ -386,6 +386,5 @@ def load_graph(package, frozen_graph_filename, **kwargs):
             )
 
     with tf.Graph().as_default() as graph:
-        with tf.device(device):
-            tf.import_graph_def(graph_def)
+        tf.import_graph_def(graph_def)
     return graph

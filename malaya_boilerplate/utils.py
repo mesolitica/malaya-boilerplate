@@ -288,3 +288,13 @@ class DisplayablePath(object):
 def check_tf2_huggingface():
     if version.parse(tf.__version__) < version.parse('2.0'):
         raise Exception('Tensorflow version must >= 2.0 to use HuggingFace models.')
+
+
+def check_tf2(func):
+
+    def inner1(*args, **kwargs):
+
+        check_tf2_huggingface()
+        return func(*args, **kwargs)
+
+    return inner1

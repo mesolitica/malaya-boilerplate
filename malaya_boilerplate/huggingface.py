@@ -15,6 +15,15 @@ logger = logging.getLogger(__name__)
 HUGGINGFACE_USERNAME = os.environ.get('HUGGINGFACE_USERNAME', 'huseinzol05')
 
 
+def download_files(repository, s3_file):
+    files = {}
+    for k, file in s3_file.items():
+        base_path = repository
+        logger.info(f'downloading frozen {base_path}/{file}')
+        files[k] = hf_hub_download(base_path, file)
+    return files
+
+
 def download_from_dict(file, s3_file, package, quantized=False):
     home, _ = _get_home(package=package)
     if quantized:
