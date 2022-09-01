@@ -35,6 +35,8 @@ if check_tf_version() > 1:
         warnings.warn(
             f'Cannot import beam_search_ops from Tensorflow Addons, {USED_TREE} will not available to use, make sure Tensorflow Addons version >= 0.12.0'
         )
+        warnings.warn(
+            'check compatible Tensorflow version with Tensorflow Addons at https://github.com/tensorflow/addons/releases')
 
 
 else:
