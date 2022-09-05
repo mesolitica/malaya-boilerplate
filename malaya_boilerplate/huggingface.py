@@ -57,7 +57,7 @@ def download_from_string(
         repo_id = f'{repo_id}-quantized'
         try:
             list_repo_files(repo_id)
-        except:
+        except BaseException:
             raise ValueError(
                 f'Quantized model for `{os.path.join(module, model)}` is not available, please load normal model.'
             )
@@ -161,12 +161,12 @@ def upload_dict(model: str, files_mapping: Dict[str, str], username: str = HUGGI
         {local_file: target_file}
     username: str, optional (default=os.environ.get('HUGGINGFACE_USERNAME', 'huseinzol05'))
     """
+    repo_id = f'{username}/{model}'
+
     try:
-        create_repo(name=model)
+        create_repo(name=repo_id)
     except Exception as e:
         logger.warning(e)
-
-    repo_id = f'{username}/{model}'
 
     for file, file_remote in files_mapping.items():
         upload_file(path_or_fileobj=file,
