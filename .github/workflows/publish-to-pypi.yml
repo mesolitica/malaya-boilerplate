@@ -3,7 +3,7 @@ name: Publish malaya-boilerplate
 on:
   push:
     branches:
-      - main
+      - push
 jobs:
   build-n-publish:
     name: Publish malaya-boilerplate

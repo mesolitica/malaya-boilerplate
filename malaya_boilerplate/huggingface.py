@@ -15,16 +15,22 @@ logger = logging.getLogger(__name__)
 HUGGINGFACE_USERNAME = os.environ.get('HUGGINGFACE_USERNAME', 'huseinzol05')
 
 
-def download_files(repository, s3_file):
+def download_files(repository, s3_file, **kwargs):
     files = {}
     for k, file in s3_file.items():
         base_path = repository
         logger.info(f'downloading frozen {base_path}/{file}')
-        files[k] = hf_hub_download(base_path, file)
+        files[k] = hf_hub_download(base_path, file, **kwargs)
     return files
 
 
-def download_from_dict(file, s3_file, package, quantized=False):
+def download_from_dict(
+    file,
+    s3_file,
+    package,
+    quantized=False,
+    **kwargs,
+):
     home, _ = _get_home(package=package)
     if quantized:
         if 'quantized' not in file:
@@ -43,12 +49,17 @@ def download_from_dict(file, s3_file, package, quantized=False):
         base_path = base_path.replace('/', '-')
         base_path = f'{HUGGINGFACE_USERNAME}/{base_path}'
         logger.info(f'downloading frozen {base_path}/{file}')
-        files[k] = hf_hub_download(base_path, file)
+        files[k] = hf_hub_download(base_path, file, **kwargs)
     return files
 
 
 def download_from_string(
-    path, module, keys, package, quantized=False
+    path,
+    module,
+    keys,
+    package,
+    quantized=False,
+    **kwargs,
 ):
     model = path
     repo_id = f'{HUGGINGFACE_USERNAME}/{module}-{model}'
@@ -72,7 +83,7 @@ def download_from_string(
             file = splitted[1]
         else:
             repo_id_ = repo_id
-        files[k] = hf_hub_download(repo_id_, file)
+        files[k] = hf_hub_download(repo_id_, file, **kwargs)
 
     return files
 
@@ -110,6 +121,7 @@ def check_file(
             s3_file=s3_file,
             package=package,
             quantized=quantized,
+            **kwargs,
         )
     else:
         files = download_from_string(
@@ -118,6 +130,7 @@ def check_file(
             keys=keys,
             package=package,
             quantized=quantized,
+            **kwargs,
         )
     return files
 

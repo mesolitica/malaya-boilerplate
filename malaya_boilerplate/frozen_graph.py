@@ -3,6 +3,7 @@ import numpy as np
 import tensorflow as tf
 import struct
 import os
+import warnings
 from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
 from .utils import available_gpu, _get_home
@@ -30,8 +31,6 @@ if check_tf_version() > 1:
         _beam_search_so = LazySO('custom_ops/seq2seq/_beam_search_ops.so')
         gather_tree = _beam_search_so.ops.addons_gather_tree
     except BaseException:
-        import warnings
-
         warnings.warn(
             f'Cannot import beam_search_ops from Tensorflow Addons, {USED_TREE} will not available to use, make sure Tensorflow Addons version >= 0.12.0'
         )
@@ -43,8 +42,6 @@ else:
     try:
         from tensorflow.contrib.seq2seq.python.ops import beam_search_ops
     except BaseException:
-        import warnings
-
         warnings.warn(
             f'Cannot import beam_search_ops from Tensorflow 1, {USED_TREE} for stemmer will not available to use, make sure Tensorflow 1 version >= 1.15'
         )
@@ -110,12 +107,7 @@ def get_device(**kwargs):
         raise ValueError(
             "`device` from `device:{no}` must one of ['XLA_CPU', 'XLA_CPU_JIT', 'CPU', 'GPU', 'XLA_GPU']"
         )
-    auto_gpu = kwargs.get('auto_gpu', True)
     gpus = available_gpu()
-
-    if auto_gpu and len(gpus) and 'GPU' not in device_type:
-        gpu = sorted(gpus, key=itemgetter(1), reverse=True)[0]
-        device = gpu[0]
 
     if 'GPU' in device:
         if not len(gpus):
@@ -220,8 +212,6 @@ def load_graph(package, frozen_graph_filename, **kwargs):
         if device is not a gpu, `load_graph` will throw an error.
     precision_mode: str, optional (default='FP32')
         change precision frozen graph, only supported one of ['BFLOAT16', 'FP16', 'FP32', 'FP64'].
-    auto_gpu: bool, optional (default=True)
-        if installed gpu version, will automatically allocate a model to a gpu with the most empty memory.
     t5_graph: bool, optional (default=False)
         if True, will replace static shape to dynamic shape for first element in batch.
         This should do for T5 models only.
@@ -243,8 +233,12 @@ def load_graph(package, frozen_graph_filename, **kwargs):
         'tensorrt_precision_mode', 'FP32'
     ).upper()
     logger.debug(f'tensorrt_precision_mode: {tensorrt_precision_mode}')
+
     precision_mode = kwargs.get('precision_mode', 'FP32').upper()
     logger.debug(f'precision_mode: {precision_mode}')
+
+    device = get_device(**kwargs)
+    logger.debug(f'device: {device}')
 
     t5_graph = kwargs.get('t5_graph', False)
     logger.debug(f't5_graph: {t5_graph}')
@@ -254,7 +248,6 @@ def load_graph(package, frozen_graph_filename, **kwargs):
 
     glowtts_multispeaker_graph = kwargs.get('glowtts_multispeaker_graph', False)
     logger.debug(f'glowtts_multispeaker_graph: {glowtts_multispeaker_graph}')
-    device = get_device(**kwargs)
 
     if tensorrt_precision_mode not in {'FP32', 'FP16', 'INT8'}:
         raise ValueError(
@@ -282,8 +275,6 @@ def load_graph(package, frozen_graph_filename, **kwargs):
         home, _ = _get_home(package=package)
         path = frozen_graph_filename.replace(home, '')
         path = os.path.sep.join(os.path.normpath(path).split(os.path.sep)[1:-1])
-
-    logger.info(f'running {path} using device {device}')
 
     with tf.io.gfile.GFile(frozen_graph_filename, 'rb') as f:
         try:
@@ -388,5 +379,6 @@ def load_graph(package, frozen_graph_filename, **kwargs):
             )
 
     with tf.Graph().as_default() as graph:
-        tf.import_graph_def(graph_def)
+        with tf.device(device):
+            tf.import_graph_def(graph_def)
     return graph

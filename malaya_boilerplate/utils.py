@@ -298,3 +298,29 @@ def check_tf2(func):
         return func(*args, **kwargs)
 
     return inner1
+
+
+def is_tf(func):
+
+    def inner1(*args, **kwargs):
+        logger.info(
+            'this interface is a Tensorflow model, make sure you read https://www.tensorflow.org/guide/gpu on how to use hardware accelerator')
+        return func(*args, **kwargs)
+
+    return inner1
+
+
+def is_pytorch(func):
+
+    def inner1(*args, **kwargs):
+        logger.info(
+            'this interface is a PyTorch model, make sure you read https://pytorch.org/docs/stable/notes/cuda.html on how to use hardware accelerator')
+        return func(*args, **kwargs)
+
+    return inner1
+
+
+def get_module(path, library='malaya'):
+    module = path.split(f'{library}/')[-1]
+    module = module.replace(os.path.sep, '.').replace('.py', '')
+    return f'{library}.{module}'
