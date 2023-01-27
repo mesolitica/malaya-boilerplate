@@ -6,6 +6,7 @@ from huggingface_hub import (
 )
 import os
 import logging
+import inspect
 from glob import glob
 from typing import Dict
 from .utils import _get_home
@@ -14,8 +15,11 @@ logger = logging.getLogger(__name__)
 
 HUGGINGFACE_USERNAME = os.environ.get('HUGGINGFACE_USERNAME', 'huseinzol05')
 
+hf_hub_download_parameters = hf_hub_download.__code__.co_varnames
+
 
 def download_files(repository, s3_file, **kwargs):
+    kwargs = {k: v for k, v in kwargs.items() if k in hf_hub_download_parameters}
     files = {}
     for k, file in s3_file.items():
         base_path = repository
@@ -31,6 +35,7 @@ def download_from_dict(
     quantized=False,
     **kwargs,
 ):
+    kwargs = {k: v for k, v in kwargs.items() if k in hf_hub_download_parameters}
     home, _ = _get_home(package=package)
     if quantized:
         if 'quantized' not in file:
@@ -63,6 +68,7 @@ def download_from_string(
 ):
     model = path
     repo_id = f'{HUGGINGFACE_USERNAME}/{module}-{model}'
+    kwargs = {k: v for k, v in kwargs.items() if k in hf_hub_download_parameters}
 
     if quantized:
         repo_id = f'{repo_id}-quantized'
