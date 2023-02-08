@@ -24,7 +24,9 @@ class Mock:
         logger.debug(f'last_name: {self.last_name}')
         if self.last_path:
             self.last_name = name
-            return Mock(f'{self.original_name}.{name}')
+            mock = Mock(f'{self.original_name}.{name}')
+            mock.last_path = True
+            return mock
         elif name == '__path__':
             self.last_path = True
             self.last_name = name
@@ -34,7 +36,9 @@ class Mock:
         elif name in ['v1', 'v2']:
             return
         elif self.last_name == name:
-            return Mock(f'{self.original_name}.{name}')
+            mock = Mock(f'{self.original_name}.{name}')
+            mock.last_path = True
+            return mock
         else:
             self.last_path = False
             self.last_name = None
@@ -45,7 +49,6 @@ class Mock:
 
 
 MOCK_MODULES = [
-    'tensorflow',
     'tensorflow.compat.v2',
     'tensorflow.compat.v1',
     'tensorflow.signal',
@@ -54,6 +57,7 @@ MOCK_MODULES = [
     'tensorflow.python.framework',
     'tensorflow_probability',
     'tensorflow.keras.preprocessing.sequence',
+    'tensorflow.keras.preprocessing.sequence.pad_sequences',
     'torchlibrosa.stft',
     'tensorflow.python.distribute.cross_device_ops',
     'tensorflow.python.estimator.run_config',
@@ -61,6 +65,10 @@ MOCK_MODULES = [
     'tensorflow.compat.v1.train',
     'tensorflow.python.training.optimizer',
     'tensorflow.compat.v2.io.gfile',
+    'tensorflow.python.ops.variables.VariableSynchronization',
+    'tensorflow.python.ops.variables.variables.VariableAggregation',
+    'tensorflow.python.client',
+    'tensorflow',
 ]
 failed = []
 for mock in MOCK_MODULES:
