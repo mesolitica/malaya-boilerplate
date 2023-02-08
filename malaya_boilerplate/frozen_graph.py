@@ -7,6 +7,7 @@ import warnings
 from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
 from .utils import available_gpu, _get_home
+from . import Mock
 
 logger = logging.getLogger(__name__)
 UNKNOWN = b'\xff\xff\xff\xff'
@@ -24,7 +25,7 @@ USED_TREE = [
     'malaya.stem.deep_model',
 ]
 
-if check_tf_version() > 1:
+if not isinstance(tf, Mock) and check_tf_version() > 1:
     try:
         from tensorflow_addons.utils.resource_loader import LazySO
 
