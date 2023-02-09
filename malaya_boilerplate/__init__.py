@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-__version__ = '0.0.24rc1'
+__version__ = '0.0.24rc2'
 
 
 class Mock:
@@ -57,7 +57,6 @@ MOCK_MODULES = [
     'tensorflow.python.framework',
     'tensorflow_probability',
     'tensorflow.keras.preprocessing.sequence',
-    'tensorflow.keras.preprocessing.sequence.pad_sequences',
     'torchlibrosa.stft',
     'tensorflow.python.distribute.cross_device_ops',
     'tensorflow.python.estimator.run_config',
@@ -65,8 +64,6 @@ MOCK_MODULES = [
     'tensorflow.compat.v1.train',
     'tensorflow.python.training.optimizer',
     'tensorflow.compat.v2.io.gfile',
-    'tensorflow.python.ops.variables.VariableSynchronization',
-    'tensorflow.python.ops.variables.variables.VariableAggregation',
     'tensorflow.python.client',
     'tensorflow',
 ]
