@@ -1,1 +1,1 @@
-from malaya_boilerplate.hparams import Hparams
+from malaya_boilerplate.hparams import HParams

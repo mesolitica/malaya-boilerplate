@@ -32,10 +32,10 @@ if not isinstance(tf, Mock) and check_tf_version() > 1:
         _beam_search_so = LazySO('custom_ops/seq2seq/_beam_search_ops.so')
         gather_tree = _beam_search_so.ops.addons_gather_tree
     except BaseException:
-        warnings.warn(
+        logger.warning(
             f'Cannot import beam_search_ops from Tensorflow Addons, {USED_TREE} will not available to use, make sure Tensorflow Addons version >= 0.12.0'
         )
-        warnings.warn(
+        logger.warning(
             'check compatible Tensorflow version with Tensorflow Addons at https://github.com/tensorflow/addons/releases')
 
 
@@ -43,7 +43,7 @@ else:
     try:
         from tensorflow.contrib.seq2seq.python.ops import beam_search_ops
     except BaseException:
-        warnings.warn(
+        logger.warning(
             f'Cannot import beam_search_ops from Tensorflow 1, {USED_TREE} for stemmer will not available to use, make sure Tensorflow 1 version >= 1.15'
         )
 

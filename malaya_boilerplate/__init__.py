@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-__version__ = '0.0.24rc2'
+__version__ = '0.0.24'
 
 
 class Mock:
@@ -42,7 +42,8 @@ class Mock:
         else:
             self.last_path = False
             self.last_name = None
-            raise ValueError(f'{self.parent_name} is not installed. Please install it and try again.')
+            raise ValueError(
+                f'{self.parent_name} is not installed. Please install it and try again.')
 
     def __call__(self, *args, **kwargs):
         raise ValueError(f'{self.parent_name} is not installed. Please install it and try again.')
