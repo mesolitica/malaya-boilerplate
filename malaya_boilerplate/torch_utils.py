@@ -1,4 +1,5 @@
 import torch
+import gc
 import numpy as np
 
 
@@ -29,3 +30,8 @@ def to_numpy(tensor):
         return tensor.detach().cpu().numpy()
     else:
         return tensor.detach().numpy()
+
+
+def clear_torch_cache():
+    gc.collect()
+    torch.cuda.empty_cache()

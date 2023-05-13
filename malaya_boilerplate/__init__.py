@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-__version__ = '0.0.24'
+__version__ = '0.0.25rc1'
 
 
 class Mock:
@@ -22,11 +22,15 @@ class Mock:
         logger.debug(f'name: {name}')
         logger.debug(f'last_path: {self.last_path}')
         logger.debug(f'last_name: {self.last_name}')
-        if self.last_path:
+        if self.last_path and name != 'Tensor':
             self.last_name = name
             mock = Mock(f'{self.original_name}.{name}')
             mock.last_path = True
             return mock
+        
+        elif name == 'Tensor':
+            return Mock
+        
         elif name == '__path__':
             self.last_path = True
             self.last_name = name
