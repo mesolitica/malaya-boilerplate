@@ -27,10 +27,10 @@ class Mock:
             mock = Mock(f'{self.original_name}.{name}')
             mock.last_path = True
             return mock
-        
+
         elif name == 'Tensor':
             return Mock
-        
+
         elif name == '__path__':
             self.last_path = True
             self.last_name = name
@@ -70,6 +70,7 @@ MOCK_MODULES = [
     'tensorflow.python.training.optimizer',
     'tensorflow.compat.v2.io.gfile',
     'tensorflow.python.client',
+    'tensorflow.python',
     'tensorflow',
 ]
 failed = []

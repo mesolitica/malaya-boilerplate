@@ -3,7 +3,7 @@ import os
 import logging
 from tqdm import tqdm
 from glob import glob
-from .utils import _delete_folder, _get_home
+from malaya_boilerplate.utils import _delete_folder, _get_home
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +97,8 @@ def download_from_dict(file, s3_file, package, base_url, validate=True, quantize
                     continue
                 if model == 'model' and key == 'quantized':
                     continue
-                if not os.path.isfile(item) or not validate_local_file(base_url, s3_file[key], item):
+                if not os.path.isfile(item) or not validate_local_file(
+                        base_url, s3_file[key], item):
                     logger.info(f'downloading frozen {key} to {item}')
                     download_file_cloud(base_url, s3_file[key], item)
             with open(version, 'w') as fopen:
@@ -171,7 +172,8 @@ def download_from_string(
             for key, item in files_local.items():
                 if 'version' in key:
                     continue
-                if not os.path.isfile(item) or not validate_local_file(base_url, files_cloud[key], item):
+                if not os.path.isfile(item) or not validate_local_file(
+                        base_url, files_cloud[key], item):
                     logger.info(f'downloading frozen {key} to {item}')
                     versions.append(download_file_cloud(base_url, files_cloud[key], item))
             latest = str(max(versions))
@@ -257,7 +259,8 @@ def upload(model: str, directory: str, bucket: str = 'malaya',
     """
 
     if not application_key_id or not application_key:
-        raise ValueError('must set `backblaze_application_key_id` and `backblaze_application_key` are None.')
+        raise ValueError(
+            'must set `backblaze_application_key_id` and `backblaze_application_key` are None.')
 
     from b2sdk.v1 import B2Api, InMemoryAccountInfo
     info = InMemoryAccountInfo()

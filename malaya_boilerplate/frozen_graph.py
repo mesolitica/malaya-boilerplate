@@ -3,11 +3,9 @@ import numpy as np
 import tensorflow as tf
 import struct
 import os
-import warnings
-from operator import itemgetter
 from tensorflow.core.framework import types_pb2, graph_pb2, attr_value_pb2
-from .utils import available_gpu, _get_home
-from . import Mock
+from malaya_boilerplate.utils import available_gpu, _get_home
+from malaya_boilerplate import Mock
 
 logger = logging.getLogger(__name__)
 UNKNOWN = b'\xff\xff\xff\xff'
