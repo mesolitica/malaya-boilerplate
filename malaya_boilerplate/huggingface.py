@@ -182,7 +182,7 @@ def upload_dict(model: str, files_mapping: Dict[str, str], username: str = HUGGI
     repo_id = f'{username}/{model}'
 
     try:
-        create_repo(name=repo_id)
+        create_repo(repo_id)
     except Exception as e:
         logger.warning(e)
 
