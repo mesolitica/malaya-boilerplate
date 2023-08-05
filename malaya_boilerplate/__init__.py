@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-__version__ = '0.0.25rc1'
+__version__ = '0.0.25rc2'
 
 
 class Mock:

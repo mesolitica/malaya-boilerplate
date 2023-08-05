@@ -11,6 +11,8 @@ import os
 logger = logging.getLogger(__name__)
 DEVICES = None
 
+MALAYA_CACHE = os.environ.get('MALAYA_CACHE', '~/.cache/malaya')
+
 
 def _delete_folder(folder):
     for root, dirs, files in os.walk(folder):
@@ -32,6 +34,12 @@ def _delete_macos(package):
     macos = os.path.join(home, '__MACOSX')
     if os.path.exists(macos):
         rmtree(macos)
+
+
+def get_cache_dir(path):
+    cache_path = os.path.expanduser(MALAYA_CACHE)
+    Path(cache_path).mkdir(parents=True, exist_ok=True)
+    return os.path.join(cache_path, path)
 
 
 def get_home(package, package_version):
@@ -358,7 +366,8 @@ class _LazyModule(ModuleType):
     def __dir__(self):
         result = super().__dir__()
         # The elements of self.__all__ that are submodules may or may not be in the dir already, depending on whether
-        # they have been accessed or not. So we only add the elements of self.__all__ that are not already in the dir.
+        # they have been accessed or not. So we only add the elements of
+        # self.__all__ that are not already in the dir.
         for attr in self.__all__:
             if attr not in result:
                 result.append(attr)
@@ -384,8 +393,7 @@ class _LazyModule(ModuleType):
         except Exception as e:
             raise RuntimeError(
                 f"Failed to import {self.__name__}.{module_name} because of the following error (look up to see its"
-                f" traceback):\n{e}"
-            ) from e
+                f" traceback):\n{e}") from e
 
     def __reduce__(self):
         return (self.__class__, (self._name, self.__file__, self._import_structure))
