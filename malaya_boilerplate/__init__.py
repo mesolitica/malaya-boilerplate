@@ -1,10 +1,11 @@
 import sys
+import os
 import importlib
 import logging
 
 logger = logging.getLogger(__name__)
 
-__version__ = '0.0.25rc2'
+__version__ = '0.0.25rc3'
 
 
 class Mock:
@@ -53,32 +54,34 @@ class Mock:
         raise ValueError(f'{self.parent_name} is not installed. Please install it and try again.')
 
 
-MOCK_MODULES = [
-    'tensorflow.compat.v2',
-    'tensorflow.compat.v1',
-    'tensorflow.signal',
-    'tensorflow.core.framework',
-    'tensorflow.python.ops',
-    'tensorflow.python.framework',
-    'tensorflow_probability',
-    'tensorflow.keras.preprocessing.sequence',
-    'torchlibrosa.stft',
-    'tensorflow.python.distribute.cross_device_ops',
-    'tensorflow.python.estimator.run_config',
-    'tensorflow.python.training',
-    'tensorflow.compat.v1.train',
-    'tensorflow.python.training.optimizer',
-    'tensorflow.compat.v2.io.gfile',
-    'tensorflow.python.client',
-    'tensorflow.python',
-    'tensorflow',
-]
-failed = []
-for mock in MOCK_MODULES:
-    try:
-        importlib.import_module(mock)
-    except Exception as e:
-        logger.debug(f'failed to import {mock}, importing {mock} will replaced with mock module.')
-        failed.append(mock)
+if os.environ.get('MALAYA_MOCK_TF', 'false').lower() == 'true':
+    MOCK_MODULES = [
+        'tensorflow.compat.v2',
+        'tensorflow.compat.v1',
+        'tensorflow.signal',
+        'tensorflow.core.framework',
+        'tensorflow.python.ops',
+        'tensorflow.python.framework',
+        'tensorflow_probability',
+        'tensorflow.keras.preprocessing.sequence',
+        'torchlibrosa.stft',
+        'tensorflow.python.distribute.cross_device_ops',
+        'tensorflow.python.estimator.run_config',
+        'tensorflow.python.training',
+        'tensorflow.compat.v1.train',
+        'tensorflow.python.training.optimizer',
+        'tensorflow.compat.v2.io.gfile',
+        'tensorflow.python.client',
+        'tensorflow.python',
+        'tensorflow',
+    ]
+    failed = []
+    for mock in MOCK_MODULES:
+        try:
+            importlib.import_module(mock)
+        except Exception as e:
+            logger.debug(
+                f'failed to import {mock}, importing {mock} will replaced with mock module.')
+            failed.append(mock)
 
-sys.modules.update((mock, Mock(mock)) for mock in failed)
+    sys.modules.update((mock, Mock(mock)) for mock in failed)
