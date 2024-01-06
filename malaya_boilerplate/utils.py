@@ -8,6 +8,11 @@ import importlib
 import logging
 import os
 
+try:
+    import tensorflow as tf
+except BaseException:
+    tf = None
+
 logger = logging.getLogger(__name__)
 DEVICES = None
 
@@ -296,9 +301,20 @@ class DisplayablePath(object):
         return ''.join(reversed(parts))
 
 
-def check_tf2_huggingface():
-    import tensorflow as tf
+def check_tf(func):
+    def inner1(*args, **kwargs):
 
+        if tf is None:
+            raise ModuleNotFoundError(
+                'tensorflow not installed. Please install it by `pip install tensorflow` and try again.'
+            )
+        return func(*args, **kwargs)
+
+    return inner1
+
+
+@check_tf
+def check_tf2_huggingface():
     if version.parse(tf.__version__) < version.parse('2.0'):
         raise Exception('Tensorflow version must >= 2.0 to use HuggingFace models.')
 
